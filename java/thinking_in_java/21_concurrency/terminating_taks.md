@@ -144,4 +144,50 @@ t.interrupt();
 
 ## 被互斥时阻塞
 
+当线程尝试获得被 `synchronized` 锁定的锁时，如果此时已被其他线程锁定，那么当前线程将阻塞。此时线程将不能响应中断。使用 `ReentrantLock`  在锁定的同时可具备响应中断的能力。
+
+```java
+private final Lock lock = new ReentrantLock();
+
+private void fun() {
+  try {
+    lock.lockInterruptibly();
+    TimeUnit.SECONDS.sleep(1);
+  } catch (InterruptedException e) {
+    System.out.println("Target interrupted.");
+  }
+}
+
+...
+Thread t = new Thread(new Runnable() {
+  @Override public void run() {
+    target.fun();
+  }
+});
+t.start();
+/* 如果 t 不能获得锁，那么线程 t 将会被中断。 */
+t.interrupt();
+```
+
 ## 检查中断
+
+可以使用 `Thread.interrupted()` 方法检查当前线程是否已被中断，这样就有了除了在线程被阻塞时中断这种线程终止方式之外的一种新的方式。在调用并判断线程已中断后，线程的中断状态将被清除。使用这种方式终止线程时还要注意资源的清除。
+
+```java
+ Thread t = new Thread(new Runnable() {
+ @Override public void run() {
+   while (!Thread.interrupted()){
+     Closeable test = new Test();
+     try {
+       // do something.
+     }finally { // 回收资源。
+       try { test.close(); }
+       catch (IOException ignore) {}
+     }
+   }
+ }
+});
+t.start();
+t.interrupt(); // 停止线程。
+```
+
