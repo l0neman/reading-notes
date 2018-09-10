@@ -144,4 +144,121 @@ t.interrupt();
 
 ## 被互斥时阻塞
 
+当你访问一个已被 `synchronized` 关键字加锁的方法时，如果此时它已被其他线程锁定 ，那么线程会处于阻塞状态，且无法响应中断。
+
+```java
+private static final class Target {
+  public void funcA() {
+    synchronized (this) {
+      try {
+        System.out.println("funcA");
+        TimeUnit.SECONDS.sleep(1);
+      } catch (InterruptedException e) {
+        System.out.println("funcA interrupted.");
+      }
+    }
+  }
+
+  public void funcB() {
+    synchronized (this) {
+      System.out.println("funcB");
+    }
+  }
+}
+
+...
+Target target = new Target();
+Thread a = new Thread(new Runnable() {
+  @Override public void run() {
+    target.funcA();
+  }
+});
+a.start();
+
+/* 需要等待 a 释放锁。 */
+Thread b = new Thread(new Runnable() {
+  @Override public void run() {
+    target.funcB();
+  }
+});
+b.start();
+/* 此时无法中断。 */
+b.interrupt();
+```
+
+使用 `ReentrantLock` 在阻塞时具有可被中断的能力。
+
+```java
+private static final class Target {
+  private ReentrantLock lock = new ReentrantLock();
+
+  public void funcA() {
+    lock.lock();
+    try {
+      System.out.println("funcA");
+      TimeUnit.SECONDS.sleep(1);
+    } catch (InterruptedException e) {
+      System.out.println("funcA interrupted.");
+    } finally {
+      lock.unlock();
+    }
+  }
+
+  public void funcB() {
+    try {
+      /* 此时阻塞可被中断。 */
+      lock.lockInterruptibly();
+      System.out.println("funcB");
+    } catch (InterruptedException e) {
+      System.out.println("thread b interrupted.");
+    }
+  }
+}
+
+...
+Target target = new Target();
+Thread a = new Thread(new Runnable() {
+  @Override public void run() {
+    target.funcA();
+  }
+});
+a.start();
+
+/* 需要等待 a 释放锁。 */
+Thread b = new Thread(new Runnable() {
+  @Override public void run() {
+    Thread.yield();
+    target.funcB();
+  }
+});
+b.start();
+/* 此时可以被中断。 */
+b.interrupt();
+```
+
 ## 检查中断
+
+除了在线程可被中断时主动退出，在没有任何阻塞产生的时候想要退出线程，你可以使用 `interrupt()` 方法为线程设置中断标志，然后通过 `Thread.interrupted()` 方法检查中断标志，当它检测到中断标志时，会清空中断标志，所以，如果需要再次检查中断，需要把它的返回值保存起来，使用这种方式终止线程时还要注意资源的清除。
+
+```java
+Thread t = new Thread(new Runnable() {
+ @Override public void run() {
+   /* 检查中断标志。 */
+   while (!Thread.interrupted()){
+     Closeable test = new Test();
+     // do something...
+     try {
+       TimeUnit.MILLISECONDS.sleep(100);
+     } catch (InterruptedException e) {
+       System.out.println("sleep interrupted");
+     }finally { // 回收资源。
+       try { test.close(); }
+       catch (IOException ignore) {}
+     }
+   }
+ }
+});
+t.start();
+t.interrupt(); // 中断线程。
+```
+
