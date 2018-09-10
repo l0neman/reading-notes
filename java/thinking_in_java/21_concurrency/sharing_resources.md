@@ -7,6 +7,7 @@
 - [原子类](#原子类)
 - [临界区](#临界区)
 - [在其他对象上同步](#在其他对象上同步)
+- [线程本地存储](#线程本地存储)
 
 ## 错误的共享资源
 
@@ -207,5 +208,29 @@ private static final class Test {
       ...
     }
   }
+```
+
+## 线程本地存储
+
+解决线程共享资源的另一个方法是为每个线程都生成一个对应的变量，它们具有相同的变化。
+
+使用 `java.lang.ThreadLocal` 类，可为每个线程绑定一个对象数据，使用它的 `get` 方法获取当前线程保存的原始对象副本，使用 `set` 方法将对象设置到对应的线程本地存储中。
+
+```java
+// 计数器。
+private static final class NextInt {
+  private ThreadLocal<Integer> count = new ThreadLocal<Integer>() {
+    @Override protected Integer initialValue() { return 0; }
+  };
+
+  /* 每个线程只能访问自己那份数据 */  
+  private int next() {
+    int n = count.get();
+    n++;
+    n++;
+    count.set(n);
+    return count.get();
+  }
+}
 ```
 
