@@ -51,9 +51,7 @@ static final class Door {
 static final class Open implements Runnable {
   private Door door;
 
-  public Open(Door door) {
-    this.door = door;
-  }
+  public Open(Door door) { this.door = door; }
 
   @Override public void run() {
     try {
@@ -71,9 +69,7 @@ static final class Open implements Runnable {
 static final class Close implements Runnable {
   private Door door;
 
-  public Close(Door door) {
-    this.door = door;
-  }
+  public Close(Door door) { this.door = door; }
 
   @Override public void run() {
     try {
@@ -97,13 +93,6 @@ ExecutorService exec = Executors.newCachedThreadPool();
 
 // 启动关门任务。
 exec.execute(close);
-
-try {
-  TimeUnit.MILLISECONDS.sleep(20);
-} catch (InterruptedException e) {
-  System.out.println("sleep interrupted.");
-}
-
 // 启动开门任务。
 exec.execute(open);
 
@@ -386,11 +375,300 @@ while (condition) {
 }
 ```
 
-## 使用显示的 Lock 和 Condition 对象
+## 使用显式的 Lock 和 Condition 对象
+
+使用 java 提供的并发工具 `Lock` 和 `Condition` 对象可替代 `Object` 的 `wait/notifyAll` 方法，其中 `Condition` 对象可使用 `await()` 方法将线程挂起，使用 `singalAll` 替代 `notifyAll` 唤醒线程。
+
+使用`Lock` 和 `Condition` 重写开门的例子。
+
+```java
+static final class Door {
+
+  private boolean isOpen = false;
+  private Lock lock = new ReentrantLock();
+  private Condition condition = lock.newCondition();
+
+  public void open() {
+    lock.lock();
+    isOpen = true;
+    try {
+      condition.signalAll();
+    } finally {
+      lock.unlock();
+    }
+  }
+
+  public void close() {
+    lock.lock();
+    isOpen = false;
+    try {
+      condition.signalAll();
+    } finally {
+      lock.unlock();
+    }
+  }
+
+  public void waitOpen() {
+    lock.lock();
+    try {
+      while (!isOpen) {
+        condition.await();
+      }
+    } catch (InterruptedException e) {
+      System.out.println("open wait interrupted.");
+    } finally {
+      lock.unlock();
+    }
+  }
+
+  private void waitClose() {
+    lock.lock();
+    try {
+      while (isOpen) {
+        condition.await();
+      }
+    } catch (InterruptedException e) {
+      System.out.println("close wait interrupted.");
+    } finally {
+      lock.unlock();
+    }
+  }
+}
+
+static final class Open implements Runnable {
+  private Door door;
+
+  public Open(Door door) {
+    this.door = door;
+  }
+
+  @Override public void run() {
+    try {
+      while (!Thread.interrupted()) {
+        TimeUnit.MILLISECONDS.sleep(300);
+        door.open();
+        System.out.println("open the door.");
+        door.waitClose();
+      }
+    } catch (InterruptedException e) {
+      System.out.println("open interrupted.");
+    }
+  }
+}
+
+static final class Close implements Runnable {
+
+  private Door door;
+
+  public Close(Door door) {
+    this.door = door;
+  }
+
+  @Override public void run() {
+    try {
+      while (!Thread.interrupted()) {
+        door.waitOpen();
+        TimeUnit.MILLISECONDS.sleep(400);
+        door.close();
+        System.out.println("close the door.");
+      }
+    } catch (InterruptedException e) {
+      System.out.println("close interrupted.");
+    }
+  }
+}
+
+...
+ExecutorService exec = Executors.newCachedThreadPool();
+Door door = new Door();
+
+exec.submit(new Open(door));
+exec.submit(new Close(door));
+
+try {
+  TimeUnit.SECONDS.sleep(3);
+} catch (InterruptedException e) {
+  System.out.println("sleep interrupted.");
+}
+
+exec.shutdownNow();
+```
 
 ## 生产者-消费者和队列
 
-## BlockingQueue
+相对于 `wait/notify` 方法实现的简单生产者消费者模式，java 提供了更高级的同步阻塞队列 `java.concurrent.BlockingQueue`，可以使用它的 `LinkedBlockingQueue` 或 `ArrayBlockingQueue` 实现类。在出队列时，如果队列内没有元素，那么当前访问线程将被挂起。同步队列更加可靠，适合处理大量元素。
 
-## 使用管道进行输入输出
+```java
+static final class Cake {
+  private int id;
+
+  public Cake(int id) { this.id = id; }
+}
+
+static final class CakeShop implements Runnable {
+  private BlockingQueue<Cake> cakeQueue = new LinkedBlockingDeque<>(10);
+  private ExecutorService exec = Executors.newCachedThreadPool();
+  private Maker maker = new Maker(this);
+  private Courier courier = new Courier(this);
+  private static int sId = 1;
+
+  public synchronized int cakeNum() {
+    return sId;
+  }
+
+  public int getCakeSize() {
+    return cakeQueue.size();
+  }
+
+  public void makeCake() {
+    try {
+      synchronized (this) {
+        System.out.println("make cake " + sId);
+        cakeQueue.put(new Cake(sId++));
+      }
+    } catch (InterruptedException e) {
+      System.out.println("put cake interrupted.");
+    }
+  }
+
+  public Cake giveCake() {
+    try {
+      return cakeQueue.take();
+    } catch (InterruptedException e) {
+      System.out.println("give cake interrupted.");
+    }
+    return null;
+  }
+
+  public void stop() {
+    exec.shutdownNow();
+  }
+
+  @Override public void run() {
+    exec.submit(maker);
+    exec.submit(courier);
+  }
+}
+
+static final class Maker implements Runnable {
+  private final CakeShop cakeShop;
+
+  public Maker(CakeShop cakeShop) { this.cakeShop = cakeShop; }
+
+  @Override public void run() {
+    try {
+      while (!Thread.interrupted()) {
+        TimeUnit.MILLISECONDS.sleep(200);
+        cakeShop.makeCake();
+        if (cakeShop.cakeNum() == 11) {
+          cakeShop.stop();
+          return;
+        }
+      }
+    } catch (InterruptedException e) {
+      System.out.println("maker interrupted.");
+    }
+  }
+}
+
+static final class Courier implements Runnable {
+  private final CakeShop cakeShop;
+
+  public Courier(CakeShop cakeShop) { this.cakeShop = cakeShop; }
+
+  @Override public void run() {
+    try {
+      while (!Thread.interrupted()) {
+        TimeUnit.MILLISECONDS.sleep(200);
+        final Cake cake = cakeShop.giveCake();
+        if (cake != null) {
+          System.out.println("give cake " + cake.id + " ok.");
+        }
+      }
+    } catch (InterruptedException e) {
+      System.out.println("courier interrupted.");
+    } finally {
+      // 处理剩余的蛋糕。
+      while (cakeShop.getCakeSize() != 0) {
+        final Cake cake = cakeShop.giveCake();
+        if (cake != null) {
+          System.out.println("give last cake " + cake.id + " ok.");
+        }
+      }
+    }
+  }
+}
+
+...
+new CakeShop().run();
+```
+
+## 使用管道进行 I/O 操作
+
+java 提供了管道 IO `PipedWriter` 和 `PipedReader`，可使用它们在多线程之间进行输出输出操作。其中 `PipedReader` 与普通 IO 不同，它是可被中断的。
+
+```java
+static final class Sender implements Runnable {
+
+  private final PipedWriter pw;
+
+  public Sender(PipedWriter pw) {
+    this.pw = pw;
+  }
+
+  @Override public void run() {
+    char a = 'a';
+    try {
+      while (!Thread.interrupted() && a < 'z') {
+        TimeUnit.MILLISECONDS.sleep(200);
+        pw.write(a++);
+        System.out.println("send " + (char) (a - 1));
+      }
+    } catch (InterruptedException e) {
+      System.out.println("sender interrupted.");
+    } catch (IOException e) {
+      System.out.println("sender exception.");
+    }
+  }
+}
+
+static final class Receiver implements Runnable {
+
+  private final PipedReader pr;
+
+  public Receiver(PipedWriter pw) {
+    try {
+      this.pr = new PipedReader(pw);
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+  @Override public void run() {
+    try {
+      while (!Thread.interrupted()) {
+        char a = (char) pr.read();
+        System.out.println("receive " + a);
+      }
+    } catch (IOException e) {
+      System.out.println("receiver InterruptedIOException." + e.getMessage());
+    }
+  }
+}
+
+...
+ExecutorService exec = Executors.newCachedThreadPool();
+
+final PipedWriter pw = new PipedWriter();
+exec.submit(new Sender(pw));
+exec.submit(new Receiver(pw));
+
+try {
+  TimeUnit.SECONDS.sleep(2);
+} catch (InterruptedException e) {
+  System.out.println("sleep interrupted.");
+}
+
+exec.shutdownNow();
+```
 
