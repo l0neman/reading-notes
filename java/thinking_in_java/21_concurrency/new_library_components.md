@@ -2,6 +2,8 @@
 
 - [CountDownLatch](#CountDownLatch)
 - [CyclicBarrier](#CyclicBarrier)
+- [PriorityBlockingQueue](#PriorityBlockingQueue)
+- [ScheduledThreadPoolExecutor](#ScheduledThreadPoolExecutor)
 
 ## CountDownLatch
 
@@ -193,5 +195,87 @@ add delayed task 3 delay 625
 execute 2
 execute 1
 execute 3
+```
+
+## PriorityBlockingQueue
+
+优先阻塞队列，可根据任务的优先级执行任务。
+
+```java
+static final class PriorityTask implements Runnable, Comparable<PriorityTask> {
+
+  private final int priority;
+  private final int id;
+
+  public PriorityTask(int priority, int id) {
+    this.priority = priority;
+    this.id = id;
+  }
+
+  @Override public void run() {
+    System.out.println("task " + id + " is run, priority is " + priority);
+  }
+
+  @Override public int compareTo(PriorityTask o) {
+    return this.priority - o.priority;
+  }
+}
+
+...
+PriorityBlockingQueue<PriorityTask> tasks = new PriorityBlockingQueue<>();
+Random random = new Random();
+for (int i = 1; i <= 5; i++) {
+  final int priority = random.nextInt(20);
+  tasks.put(new PriorityTask(priority, i));
+  System.out.println("add priority " + priority + " task.");
+}
+
+new Thread(new Runnable() {
+  @Override public void run() {
+    while (!Thread.interrupted()) {
+      try {
+        tasks.take().run();
+      } catch (InterruptedException e) {
+        System.out.println("take interrupted.");
+      }
+    }
+  }
+}).start();
+```
+
+执行结果：
+
+```
+add priority 15 task.
+add priority 9 task.
+add priority 10 task.
+add priority 11 task.
+add priority 7 task.
+task 5 is run, priority is 7
+task 2 is run, priority is 9
+task 3 is run, priority is 10
+task 4 is run, priority is 11
+task 1 is run, priority is 15
+```
+
+## ScheduledThreadPoolExecutor
+
+可延迟执行任务的线程池，也可重复执行延时任务。
+
+```java
+ScheduledThreadPoolExecutor executor = new ScheduledThreadPoolExecutor(3);
+/* 延迟 500 ms 执行 */
+executor.schedule(new Runnable() {
+  @Override public void run() {
+    System.out.println("delayed 500 millis.");
+  }
+}, 500, TimeUnit.MILLISECONDS);
+
+/* 每隔 500 ms 重复执行 */
+executor.scheduleAtFixedRate(new Runnable() {
+  @Override public void run() {
+    System.out.println("1");
+  }
+}, 500, 500, TimeUnit.MILLISECONDS);
 ```
 
