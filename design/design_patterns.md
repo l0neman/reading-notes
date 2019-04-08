@@ -8,31 +8,30 @@
   - [里氏代换原则](#里氏代换原则)
   - [接口隔离原则](#接口隔离原则)
 - [创建型模式](#创建型模式)
-  - [Abstract Factory-抽象工厂](#Abstract-Factory-抽象工厂)
-  - [Builder-建造者](#Builder-建造者)
-  - [Factory Method-工厂方法](#Factory-Method-工厂方法)
-  - [Prototype-原型](#Prototype-原型)
-  - [Singleton-单例](#Singleton-单例)
+  - [Abstract Factory-抽象工厂](#abstract-factory-抽象工厂)
+  - [Builder-建造者](#builder-建造者)
+  - [Factory Method-工厂方法](#factory-method-工厂方法)
+  - [Prototype-原型](#prototype-原型)
+  - [Singleton-单例](#singleton-单例)
 - [结构型模式](#结构型模式)
-  - [Adapter-适配器](#Adapter-适配器)
-  - [Bridge-桥接](#Bridge-桥接)
-  - [Composite-组合](#Composite-组合)
-  - [Decorator-装饰](#Decorator-装饰)
-  - [Facade-外观](#Facade-外观)
-  - [Flyweight-享元](#Flyweight-享元)
-  - [Proxy-代理](#Proxy-代理)
-- [行为模式](#行为模式)
-  - [Chain of Responsibility-责任链](#Chain-of-Responsibility-责任链)
-  - [Command-命令](#Command-命令)
-  - [Interpreter-解释器](#Interpreter-解释器)
-  - [Iterator-迭代器](#Iterator-迭代器)
-  - [Mediator-中介者](#Mediator-中介者)
-  - [Memento-备忘录](#Memento-备忘录)
-  - [Observer-观察者](#Observer-观察者)
-  - [State-状态](#State-状态)
-  - [Strategy-策略](#Strategy-策略)
-  - [Template Method-模板方法](#Template-Method-模板方法)
-  - [Visitor-访问者](#Visitor-访问者)
+  - [Adapter-适配器](#adapter-适配器)
+  - [Bridge-桥接](#bridge-桥接)
+  - [Composite-组合](#composite-组合)
+  - [Decorator-装饰](#decorator-装饰)
+  - [Facade-外观](#facade-外观)
+  - [Flyweight-享元](#flyweight-享元)
+  - [Proxy-代理](#proxy-代理)
+  - [Chain of Responsibility-责任链](#chain-of-responsibility-责任链)
+  - [Command-命令](#command-命令)
+  - [Interpreter-解释器](#interpreter-解释器)
+  - [Iterator-迭代器](#iterator-迭代器)
+  - [Mediator-中介者](#mediator-中介者)
+  - [Memento-备忘录](#memento-备忘录)
+  - [Observer-观察者](#observer-观察者)
+  - [State-状态](#state-状态)
+  - [Strategy-策略](#strategy-策略)
+  - [Template Method-模板方法](#template-method-模板方法)
+  - [Visitor-访问者](#visitor-访问者)
 
 ## 面向对象六大原则
 
@@ -66,7 +65,7 @@
 
 - 创建型模式抽象了实例化过程.他们帮助一个系统独立于如何创建,组合和表示它的那些对象.一个类创建型模式使用继承改变被实例化的类,而一个对象创建型模式将实例化委托给另一个对象
 
-### Abstract Factory-抽象工厂
+### Abstract Factory 抽象工厂
 
 #### 意图
 
@@ -122,7 +121,7 @@
 
 * 一个具体的工厂通常是一个单例
 
-### Builder-建造者
+### Builder 建造者
 
 #### 意图
 
@@ -182,7 +181,7 @@
 
 * Composite通常是用Builder生成的
 
-### Factory Method-工厂方法
+### Factory Method 工厂方法
 
 #### 意图
 
@@ -250,7 +249,7 @@
 
 
 
-### Prototype-原型
+### Prototype 原型
 
 #### 意图
 
@@ -304,7 +303,7 @@
 
 * 大量使用Composite和Decorator的设计通常也可从Prototype处获益
 
-### Singleton-单例
+### Singleton 单例
 
 #### 意图
 
@@ -352,9 +351,9 @@
 
 ## 结构型模式
 
-#### 结构性模式涉及到如何组合类和对象以获得更大的结构.结构型模式采用继承机制来组合接口或实现.这一模式尤其助于多个独立开发的类库协同工作
+结构性模式涉及到如何组合类和对象以获得更大的结构.结构型模式采用继承机制来组合接口或实现.这一模式尤其助于多个独立开发的类库协同工作
 
-### Adapter-适配器
+### Adapter 适配器
 
 #### 意图
 
@@ -422,7 +421,7 @@
 
 
 
-### Bridge-桥接
+### Bridge 桥接
 
 #### 意图
 
@@ -484,7 +483,7 @@
 
 
 
-### Composite-组合
+### Composite 组合
 
 #### 意图
 
@@ -566,7 +565,7 @@
 
 
 
-### Decorator-装饰
+### Decorator 装饰
 
 #### 意图
 
@@ -628,7 +627,7 @@
 
 
 
-### Facade-外观
+### Facade 外观
 
 #### 意图
 
@@ -686,7 +685,7 @@
 
 
 
-### Flyweight-享元
+### Flyweight 享元
 
 #### 意图
 
@@ -756,7 +755,7 @@
 
 
 
-### Proxy-代理
+### Proxy 代理
 
 #### 意图
 
@@ -826,7 +825,7 @@
 
 
 
-### Chain of Responsibility-责任链
+### Chain of Responsibility 责任链
 
 #### 意图
 
@@ -888,7 +887,7 @@
 
 
 
-### Command-命令
+### Command 命令
 
 #### 意图
 
@@ -960,7 +959,7 @@
 
 
 
-### Interpreter-解释器
+### Interpreter 解释器
 
 #### 意图
 
@@ -1032,7 +1031,7 @@
 
 
 
-### Iterator-迭代器
+### Iterator 迭代器
 
 #### 意图
 
@@ -1100,7 +1099,7 @@
 
 
 
-### Mediator-中介者
+### Mediator 中介者
 
 #### 意图
 
@@ -1160,9 +1159,9 @@
 
 
 
-### Memento-备忘录
+### Memento 备忘录
 
-#### 在不破坏封装性的前提下,捕获一个对象的内部状态,并在该对象之外保存这个状态.这样以后就可将该对象恢复到保存的状态
+在不破坏封装性的前提下,捕获一个对象的内部状态,并在该对象之外保存这个状态.这样以后就可将该对象恢复到保存的状态
 
 #### 结构
 
@@ -1220,7 +1219,7 @@
 
 
 
-### Observer-观察者
+### Observer 观察者
 
 #### 意图
 
@@ -1302,7 +1301,7 @@
 
 
 
-### State-状态
+### State 状态
 
 #### 意图
 
@@ -1360,7 +1359,7 @@
 
 
 
-### Strategy-策略
+### Strategy 策略
 
 #### 意图
 
@@ -1424,7 +1423,7 @@
 
 
 
-### Template Method-模板方法
+### Template Method 模板方法
 
 
 
@@ -1486,7 +1485,7 @@
 
 
 
-### Visitor-访问者
+### Visitor 访问者
 
 #### 意图
 
