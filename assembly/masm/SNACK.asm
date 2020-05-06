@@ -11,6 +11,7 @@ assume cs:code, ds:data, ss:stack
 
 data segment
   food dw 0              ; snack food: x|y
+  slen db 0              ; snack length
   body dw 529 dup(0)     ; snack bodys
 data ends
 
@@ -31,29 +32,99 @@ start:
   mov sp, 20                ; init stack
   
   call clear
+  
   mov ah, 24
   mov al, 24
   push ax
   call draw_map
   
-  mov cx, 30
-t: ; test create food
+  call create_snack
+  call draw_snack
+  
   call create_food
-  call sleep
-
-  loop t
+  call draw_food
   
   mov ax, 4c00h
   int 21h
 
-; # create a rand food
+
+; draw snack to map
+; void -> void
+draw_snack:
+  push cx
+  push si
+  push ax
+  
+  mov ch, 0
+  mov cl, slen
+  mov si, 0
+ds0:
+  mov ax, body[si]
+  push ax
+  mov ah, 01110000b
+  mov al, ' '
+  push ax
+  call draw_char       ; draw body
+  add si, 2
+  loop ds0
+
+  pop ax
+  pop si
+  pop cx
+  ret
+
+; # create snack
+; fixed: snack size is 3
+; void -> void
+create_snack:
+  push cx
+  push si
+  push ax
+  
+  mov slen, 2   ; set snack length
+  mov ch, 0
+  mov cl, slen
+  mov si, 0
+  mov ah, 4     ; set snack head x
+  mov al, 4     ; set snack head y
+c0:
+  mov body[si], ax
+  
+  inc ah
+  add si, 2
+  loop c0
+  
+  pop ax
+  pop si
+  pop cx
+  ret
+
+; draw food to map
+; void -> void
+draw_food:
+  push ax  
+  mov ax, food
+  
+  push ax
+  mov ah, 00100000b
+  mov al, ' '
+  push ax
+  call draw_char   ; draw food
+  
+  pop ax
+  ret
+
+; # create a food
 ; fixed: map width and height
 ; void -> void
 create_food:
   push ax
   push bx
+  push cx
   push dx
+  push si
 
+re0:
   mov bx, 23
   push bx
   call rand        ; get x
@@ -64,15 +135,21 @@ create_food:
   call rand        ; get y
   inc dx
   mov al, dl
+  
+  mov ch, 0
+  mov cl, slen
+  mov si, 0
+sb0:               ; for snack body
+  cmp ax, body[si]
+  je re0           ; conflict with body, create again
+  add si, 2
+  loop sb0
+  
   mov food, ax     ; save food xy
   
-  push ax
-  mov ah, 00100000b
-  mov al, ' '
-  push ax
-  call draw_char   ; draw food
-  
+  pop si
   pop dx
+  pop cx
   pop bx
   pop ax
   ret
