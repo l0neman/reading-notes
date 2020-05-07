@@ -11,8 +11,9 @@ assume cs:code, ds:data, ss:stack
 
 data segment
   food dw 0              ; snack food: x|y
+  sdct db 0              ; snack direct 0001-up 0010-down 0100-left 1000-right
   slen db 0              ; snack length
-  body dw 529 dup(0)     ; snack bodys
+  body dw 529 dup(0)     ; snack bodys: x|y, ...
 data ends
 
 stack segment
@@ -44,11 +45,108 @@ start:
   call create_food
   call draw_food
   
+  call sleep
+;  mov cx, 5
+;t:
+  call clear_last
+  call move_snack
+  call draw_snack
+  call sleep
+  
+;  mov sdct, 0010b
+;  mov cx, 5
+;t1:
+  call clear_last
+  call move_snack
+  call draw_snack
+;  call sleep
+;  loop t1
+  
   mov ax, 4c00h
   int 21h
 
+; # clear last snack body
+; void -> void
+clear_last:
+  push ax
+  push si
+  
+  mov ah, 0
+  mov al, 4
+  mov si, ax
+  add si, si
 
-; draw snack to map
+  mov ax, body[si - 2] ; last body
+  push ax
+  mov ah, 01100000b
+  mov al, ' '
+  push ax
+  call draw_char       ; clear
+
+  pop si
+  pop ax
+  ret
+
+; # update snack bodys
+; void -> void
+move_snack:
+  push ax
+  push cx
+  push si
+
+  mov ch, 0
+  mov cl, slen
+  dec cx
+  
+  mov ah, 0
+  mov al, slen
+  mov si, ax
+  mov si, si
+ms0:  
+  mov ax, body[si - 4]
+  mov body[si - 2], ax
+  sub si, 2
+  loop ms0
+  
+  mov ax, body[0]     ; upd head
+  
+  cmp sdct, 0001b     ; up
+  je up
+  
+  cmp sdct, 0010b     ; down
+  je down
+  
+  cmp sdct, 0100b     ; left
+  je left
+  
+  cmp sdct, 1000b     ; right
+  je right
+    
+up:
+  dec al
+  jmp short uok
+
+down:
+  inc al
+  jmp short uok
+
+left:
+  dec ah
+  jmp short uok
+    
+right:
+  inc ah
+  jmp short uok
+
+uok:
+  mov body[0], ax
+
+  pop si
+  pop cx
+  pop ax
+  ret
+
+; # draw snack to map
 ; void -> void
 draw_snack:
   push cx
@@ -81,16 +179,20 @@ create_snack:
   push si
   push ax
   
-  mov slen, 2   ; set snack length
+  mov sdct, 1000b ; set direct is right
+  mov ah, 1
+  mov al, 1
+  
+  mov slen, 5     ; set snack length
   mov ch, 0
   mov cl, slen
   mov si, 0
-  mov ah, 4     ; set snack head x
-  mov al, 4     ; set snack head y
+  mov ah, 6       ; set snack head x
+  mov al, 4       ; set snack head y
 c0:
   mov body[si], ax
   
-  inc ah
+  dec ah
   add si, 2
   loop c0
   
