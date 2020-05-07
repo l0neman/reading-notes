@@ -10,9 +10,11 @@ assume cs:code, ds:data, ss:stack
 ; snack bodys max: 23 x 23
 
 data segment
+  score dw 0             ; game score
   food dw 0              ; snack food: x|y
-  sdct db 0              ; snack direct 0001-up 0010-down 0100-left 1000-right
+  sdct db 0              ; snack direction 0001-up 0010-down 0100-left 1000-right
   slen db 0              ; snack length
+  dead db 'game over!'   ; game over
   body dw 529 dup(0)     ; snack bodys: x|y, ...
 data ends
 
@@ -44,26 +46,152 @@ start:
   
   call create_food
   call draw_food
-  
-  call sleep
-;  mov cx, 5
-;t:
-  call clear_last
-  call move_snack
-  call draw_snack
-  call sleep
-  
-;  mov sdct, 0010b
-;  mov cx, 5
-;t1:
-  call clear_last
-  call move_snack
-  call draw_snack
-;  call sleep
-;  loop t1
-  
+
+  call start_game
+
+end_game:
+  call game_over
+
   mov ax, 4c00h
   int 21h
+  
+; # start game
+; void -> void
+start_game:
+  mov cx, 50 
+sg0:
+  call listen_key  
+  call clear_last
+  call move_snack
+  call is_dead
+  call show_score
+  call draw_snack
+  call sleep
+  loop sg0
+  ret
+
+; # show game over alert
+; void -> void
+game_over:
+  push ax
+  push cx
+  push si
+
+  mov si, 28
+  mov cx, 10  ; string length
+go0:
+  mov ax, si
+  mov ah, al
+  mov al, 12
+  push ax
+  mov ah, 00000111b
+  mov al, dead[si - 28]
+  push ax
+  call draw_char
+  inc si
+  loop go0
+  
+  pop si
+  pop cx
+  pop ax
+  ret
+
+; # todo
+show_score:
+  
+  ret
+
+; # is the snack dead
+; void -> void
+is_dead:
+  push ax
+  push cx
+  push si
+  
+  mov ax, body[0]  ; get head
+  
+  cmp ah, 0        ; touch the edge
+  je end_game
+
+  cmp ah, 24
+  je end_game
+
+  cmp al, 0
+  je end_game
+  
+  cmp al, 24
+  je end_game
+  
+  mov ch, 0
+  mov cl, slen
+  dec cx
+  mov si, 2     ; start with second
+  
+id0:
+  mov ax, body[si]
+  cmp body[0], ax
+  je end_game
+  add si, 2
+  loop id0
+  
+  pop si
+  pop cx
+  pop ax
+  ret
+
+; # listen to keys
+; void -> void
+listen_key:
+  push ax
+  
+  mov ah, 1
+  mov al, 0
+  int 16h          ; keboard interrupt
+  cmp ah, 1
+  je lk0
+  
+  mov ax, 0
+  int 16h
+  cmp ax, 4800h    ; press up
+  je kup
+ 
+  cmp ax, 5000h    ; press down
+  je kdown
+  
+  cmp ax, 4b00h    ; press left
+  je kleft
+  
+  cmp ax, 4d00h    ; press right
+  je kright
+  
+  jmp short lk0
+  
+kup:
+  cmp sdct, 0010b  ; direction conflict
+  je lk0
+  mov sdct, 0001b  ; set direction
+  jmp short lk0
+
+kdown:
+  cmp sdct, 0001b
+  je lk0
+  mov sdct, 0010b
+  jmp short lk0
+
+kleft:
+  cmp sdct, 1000b
+  je lk0
+  mov sdct, 0100b
+  jmp short lk0
+
+kright:
+  cmp sdct, 0100b
+  je lk0
+  mov sdct, 1000b
+  
+lk0:
+  pop ax
+  ret
 
 ; # clear last snack body
 ; void -> void
@@ -72,13 +200,13 @@ clear_last:
   push si
   
   mov ah, 0
-  mov al, 4
+  mov al, slen
   mov si, ax
   add si, si
 
   mov ax, body[si - 2] ; last body
   push ax
-  mov ah, 01100000b
+  mov ah, 00000000b
   mov al, ' '
   push ax
   call draw_char       ; clear
@@ -101,7 +229,7 @@ move_snack:
   mov ah, 0
   mov al, slen
   mov si, ax
-  mov si, si
+  add si, si
 ms0:  
   mov ax, body[si - 4]
   mov body[si - 2], ax
@@ -183,7 +311,7 @@ create_snack:
   mov ah, 1
   mov al, 1
   
-  mov slen, 5     ; set snack length
+  mov slen, 2     ; set snack length
   mov ch, 0
   mov cl, slen
   mov si, 0
@@ -208,7 +336,7 @@ draw_food:
   mov ax, food
   
   push ax
-  mov ah, 00100000b
+  mov ah, 00101000b
   mov al, ' '
   push ax
   call draw_char   ; draw food
@@ -390,8 +518,12 @@ draw_char:
   mov si, ax
   mov ax, [bp + 4]
   mov es:[si], ax   ; set prop and char
-  mov es:[si + 2], ax
   
+  cmp al, ' '
+  jne jm0
+  mov es:[si + 2], ax  ; for edge, double draw.
+  
+jm0:                ; for normal char
   pop si
   pop bx
   pop ax
