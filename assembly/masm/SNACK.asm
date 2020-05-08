@@ -11,10 +11,11 @@ assume cs:code, ds:data, ss:stack
 
 data segment
   score dw 0             ; game score
+  scpre db 'score:'      ; [6] score prefix
+  dead db 'game over!'   ; [10] game over
   food dw 0              ; snack food: x|y
   sdct db 0              ; snack direction 0001-up 0010-down 0100-left 1000-right
   slen db 0              ; snack length
-  dead db 'game over!'   ; game over
   body dw 529 dup(0)     ; snack bodys: x|y, ...
 data ends
 
@@ -48,6 +49,7 @@ start:
   call draw_food
 
   call start_game
+  call show_score
 
 end_game:
   call game_over
@@ -64,8 +66,9 @@ sg0:
   call clear_last
   call move_snack
   call is_dead
-  call show_score
   call draw_snack
+  call is_eat
+  call show_score
   call sleep
   loop sg0
   ret
@@ -96,11 +99,6 @@ go0:
   pop ax
   ret
 
-; # todo
-show_score:
-  
-  ret
-
 ; # is the snack dead
 ; void -> void
 is_dead:
@@ -125,9 +123,9 @@ is_dead:
   mov ch, 0
   mov cl, slen
   dec cx
-  mov si, 2     ; start with second
-  
-id0:
+  mov si, 2        ; start with second
+
+id0:               ; touch self body
   mov ax, body[si]
   cmp body[0], ax
   je end_game
@@ -136,6 +134,101 @@ id0:
   
   pop si
   pop cx
+  pop ax
+  ret
+
+; # add snack body
+; void -> void
+add_body:
+  push ax
+  push si
+  
+  mov ah, 0
+  mov al, slen
+  inc al
+  mov slen, al    ; add body
+  mov si, ax
+  add si, si
+
+  mov ax, body[si - 4]
+  mov body[si - 2], ax
+  
+  inc score
+  call create_food
+  call draw_food
+  
+  pop si
+  pop ax
+  ret
+
+; # is snack eat food
+; void -> void
+is_eat:
+  push ax
+
+  mov ax, food
+  cmp ax, body[0]
+  jne nt0
+  call add_body
+nt0:
+  pop ax
+  ret
+
+; show game score
+; void -> void
+show_score:
+  push ax
+  push bx
+  push si
+  
+  mov si, 28
+  mov cx, 6  ; string length
+po0:         ; draw score prefix
+  mov ax, si
+  mov ah, al
+  mov al, 2
+  push ax
+  mov ah, 00000111b
+  mov al, scpre[si - 28]
+  push ax
+  call draw_char
+  inc si
+  loop po0
+  
+  mov si, 0
+  mov ax, score
+sl0:
+  mov bh, 0
+  mov bl, 10
+  div bl
+  mov bx, ax
+  mov bl, bh
+  mov bh, 0
+  push bx        ; save digit
+  inc si         ; count digits
+  cmp al, 0      ; no more digit
+  je se0
+  mov ah, 0      ; next digit
+  jmp short sl0
+se0:
+  mov cx, si
+  mov si, 34     ; show start x
+sn0:
+  pop bx         ; get each digit
+  add bx, 30H    ; get digit ascii
+  mov ax, si
+  mov ah, al
+  mov al, 2
+  push ax
+  mov ah, 00000111b
+  mov al, bl
+  push ax
+  call draw_char ; draw each digit
+  inc si
+  loop sn0
+  
+  pop si
+  pop bx
   pop ax
   ret
 
