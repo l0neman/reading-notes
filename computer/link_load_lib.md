@@ -2,7 +2,7 @@
 
 # 第 1 部分简介
 
-## 第一章 温故而知新
+## 第 1 章 温故而知新
 
 - 1.3 万变不离其宗
 
@@ -12,8 +12,8 @@
 
 北桥（Northbridge，PCI Bridge）芯片用于连接所有高速设备，包括 CPU、内存和 PCI 总线。
 
-对称多处理器（SMP，Symmetrical Multi-Processing），就是每个 CPU 在系统中所处的地位
-和所发挥的功能是一样的，是相互对称的。
+对称多处理器（SMP，Symmetrical Multi-Processing），就是每个 CPU 在系统中所处的地
+位和所发挥的功能是一样的，是相互对称的。
 
 多核处理器（Multi-core Processor），将多个处理器打包，以一个处理器的外包装进行
 出售，处理器之间缓存部件，只保留多个核心。
@@ -30,8 +30,8 @@
 开发工具和应用程序属于同一个层次，它们都使用应用程序编程接口（Application Program 
 Interface）。
 
-运行库使用操作系统提供的系统调用接口（System call Interface），系统调用接口在现实中
-往往以软件中断（Software Inerrupt）的方式提供。
+运行库使用操作系统提供的系统调用接口（System call Interface），系统调用接口在现
+实中往往以软件中断（Software Inerrupt）的方式提供。
 
 硬件规格（Hardware Specification），指驱动程序如可操作硬件，如何与硬件进行通信。
 
@@ -39,10 +39,10 @@ Interface）。
 
 - 操作系统
 
-1. 多道程序（Multiprogramming），当某个程序无需使用 CPU 时，监控程序就把另外正在等待 
-CPU 资源的程序启动，使得 CPU 能够充分利用起来。
-2. 分时系统（Time-Sharing System），每个程序运行一段时间以后都主动让出 CPU 给其他程序，
-使得一段时间内每个程序都有机会运行一小段时间。
+1. 多道程序（Multiprogramming），当某个程序无需使用 CPU 时，监控程序就把另外正在
+等待 CPU 资源的程序启动，使得 CPU 能够充分利用起来。
+2. 分时系统（Time-Sharing System），每个程序运行一段时间以后都主动让出 CPU 给其
+他程序，使得一段时间内每个程序都有机会运行一小段时间。
 3. 多任务系统（Multi-tasking System），所有程序都以进程的方式运作。
 
 抢占式（Preemptive）
@@ -71,16 +71,16 @@ CPU 资源的程序启动，使得 CPU 能够充分利用起来。
 
 - 分页（Paging）
 
-把地址空间人为地等分成固定大小的页，每一页的大小由硬件决定，或硬件支持多种大小的页，
-由操作系统决定页的大小。
+把地址空间人为地等分成固定大小的页，每一页的大小由硬件决定，或硬件支持多种大小的
+页，由操作系统决定页的大小。
 
 虚拟空间的页叫做虚拟页（VP，Virtual Page），物理内存中的页叫做物理页
 （PP，Physical Page），把磁盘中的页叫做磁盘页（DP，Disk Page）。
 
 当进程访问对应的页不在内存中时，硬件会捕获到这个消息，就是页错误（Page Fault）。
 
-虚拟存储硬件支持，几乎所有的硬件都采用 MMU（Memory Management Unit）部件进行页映射。
-通常 MMU 都集成在 CPU 内部，不会以单独的形式出现。
+虚拟存储硬件支持，几乎所有的硬件都采用 MMU（Memory Management Unit）部件进行页映
+射。通常 MMU 都集成在 CPU 内部，不会以单独的形式出现。
 
 ```
 [ CPU ] -> Virtual Address -> [ MMU ] -> Physical Address -> [ Physical Memory ]
@@ -112,7 +112,6 @@ CPU 资源的程序启动，使得 CPU 能够充分利用起来。
 1. 运行（Running）：此时线程正在执行；
 2. 就绪（Ready）：此时线程可以立刻运行，但 CPU 已被占用；
 3. 等待（Waiting）：此时线程正在等待某一事件（通常是 I/O 或同步）发生，无法执行。
-
 
 ```
          无法运行，且线程被选中
@@ -231,11 +230,11 @@ hello.c          \
 [ Hearder Files ]                                               |
 studio.h                                                        |
 ...                                                             |
-                                                                V
+                                                                v
 [ Static Library ] <- [ Object File ] <- [ Assembly ] <- [ Assembly ]
   libc.a                hello.o            (as)            hello.s
   ...              /
-      \           V
+      \           v
         > [ Linking ] -> [ Executable]
             (ld)           a.out
 ```
@@ -246,7 +245,7 @@ studio.h                                                        |
 
 ```
 $gcc -E hello.c -o hello.i
-or
+or:
 $cpp hello.c > hello.i
 ```
 
@@ -256,9 +255,171 @@ $cpp hello.c > hello.i
 
 1. 将所有的“#define”删除，并展开所有宏定义；
 2. 处理所有条件预编译指令，如“#if”、“#elif”、“#elde”、“#endif”；
-3. 处理“#include”预编译指令，将被包含的文件插入到该预编译指令的位置。注意，这个
-过程是递归进行的，也就是说被包含的文件可能还包含其他文件；
+3. 处理“#include”预编译指令，将被包含的文件插入到该预编译指令的位置。注意，这
+个过程是递归进行的，也就是说被包含的文件可能还包含其他文件；
 4. 删除所有的“//”和“/**/”；
 5. 添加行号和文件名标识，比如 #2“hello.c”2，以便于编译时编译器产生调试用的行号
 信息及用于编译时产生编译错误或警告时能够显示行号；
 6. 保留所有 #pragma 编译器指令，因为编译器需要使用它们。
+
+
+
+- 编译
+
+编译过程就是把预处理完的文件进行一系列词法分析、语法分析、语义分析及优化后产生相
+应的汇编文件。
+
+```
+$gcc -S hello.i -o hello.s
+or
+$gcc -S hello.c -o hello.s
+```
+
+gcc 是编译器套件，根据不同参数要求去调用预编译程序 cc1、汇编器 as、连接器 ld。
+
+
+
+- 汇编
+
+汇编器将汇编代码转变成机器可以执行的指令，每一个汇编语句几乎对应一条机器指令。
+
+```
+$as hello.s -o hello.o
+or:
+$gcc -c hello.s -o hello.o
+or:
+$gcc -c hello.c -o hello.o
+```
+
+
+
+- 链接
+
+。。。
+
+
+
+- 编译器做了什么
+
+编译过程：
+
+```
+[ Source Code ] -> Scanner -> [ Tokens ] -> Parser -> [ Stnax Tree ]
+                                                            v
+                                                      Semantic Analyzer
+                                                            v
+[ Intermediate- ] <- Soure Code Optimizer <- [ Commented Syntax Tree ]
+  Representation
+      v
+ Code Generator
+      v
+[ Target Code] -> Code Optimizer -> [ Final Target Code ]
+```
+
+
+
+1. 词法分析
+
+源代码首先被输入扫描器（Scanner），运用类似于有限状态机（Finite State Machine）
+的算法可以轻松地将源代码的字符序列分割成一系列的记号（Token）。
+
+记号一般分为：关键字、标识符、字面量（数字、字符串等）和特殊符号（加号、等号）。
+
+lex 程序可以实现词法扫描。
+
+
+
+2. 语法分析
+
+语法分析器（Grammar Parser）将对由扫描器产生的记号进行语法分析，产生语法树
+（Syntax Tree）。整个过程采用了上下文无关语法（Context-free Grammar）的分析手段。
+
+语法树是以表达式（Expression）为节点的树。
+
+yacc（Yet Another Compiler Compiler）程序可用于词法分析。
+
+
+
+3. 语义分析
+
+语义分析器（Semantic Analyzer）对表达式做静态语义（Static Semantic，在编译期确定
+的语义）分析，不了解这个语句是否有意义。
+
+动态语义（Dynamic Semantic）指在运行期才能确定的语义。
+
+
+
+4. 中间语言生成
+
+源码级优化器（Source Code Optimizer）将整个语法树转换成中间代码（Intermediate Code）
+
+中间代码类型：三地址码（Threr-address Code）和 P-代码（P-Code）。
+
+最基本的三地址码：`x = y op z`
+
+
+
+5. 目标代码生成与优化
+
+源代码级优化器产生中间代码标志着下面的过程都属于编辑器后端。后端主要包括代码生成
+器（Code Generator）和目标代码优化器（Target Code Optimizer）。
+
+示例代码序列：
+
+```assembly
+movl index, %ecx            ; value of index to ecx
+addl $4, %ecx               ; ecx = ecx + 4
+mull $8, %ecx               ; ecx = ecx * 8
+movl index, %eax            ; value of index to eax
+movl %ecx, array(, eax, 4)  ; array[index] = ecx
+```
+
+目标代码优化器可能采用合适的寻址方式、使用位移来代替乘法运算、删除多余的指令等。
+
+上述示例代码乘法由一条基址比例变址寻址（Base Index Scale Addressing）的 lea 指令
+完成，随后由 mov 指令完成赋值操作。
+
+源代码此时被便衣成为目标代码，但是 index 和 array 的地址还未确定。
+
+
+
+- 连接器
+
+重新计算各个目标的地址的过程被叫做重定位（Relocation）。
+
+
+
+- 静态链接
+
+链接（Linking）过程主要包括地址空间分配（Address and Storage Allocation）、符号
+决议（Synmbol Resolution）和重定位（Relocation）等。
+
+运行时库（Runtime Library），它是支持程序运行的基本函数的集合。就是一些最常用的
+代码编译成目标文件后打包存放。
+
+对地址的修正过程叫做重定位（Relocation），每一个要修正的地方叫一个重定位入口
+（Relocation Entry）
+
+
+
+## 第 3 章 目标文件里有什么
+
+- 目标文件的格式
+
+PC 平台主流的可执行文件格式（Executable），主要是 Windows 下的 PE
+（Portable Execuable）和 Linux 的 ELF（Executable Linkable Format），它们都是 
+COFF（Common file format）格式的变种。
+
+目标文件就是源代码编译后但未未进行链接的那些中间问题（Windows 的 .obj 和 Linux 下
+的 .o）。
+
+可以广义的将目标文件和可执行文件看作同一类型的文件，Windows 下，统称它们为 PE-COFF 
+文件格式。Linux 下，可统称为 ELF 文件。还有不太常见的 Intel/Microsoft 的 OMF
+（Object Module Format）、Unix a.out 格式和 MS-DOS.COM 格式等。
+
+动态链接库（DLL，Dynamic Linking Library）（Windows 的 .dll 和 Linux 的 .so）以及
+静态链接库（Static Linking Library）（Windows 的 .lib 和 Linux 的 .a）文件都按照
+可执行文件格式存储。
+
+| ELF 文件类型 | 说明 | 实例 |
+| --- | - | - |
