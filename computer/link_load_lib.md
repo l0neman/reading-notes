@@ -120,8 +120,8 @@ Interface）。
 [ Running ] ----------------> [ Ready ]
        \       时间片用尽       ^
         \                      / 
-开始等待 \                   /  等待结束
-          ->    [ Wait ]   /
+开始等待 \                    /  等待结束
+          +>    [ Wait ]   -+
 ```
 
 
@@ -225,7 +225,7 @@ Hello World
 ```
 [ Source Code ] \ 
 hello.c          \
-                   -> [ Prepressing ] -> [ Preprocessed ] -> [ Compilation ]
+                  +-> [ Prepressing ] -> [ Preprocessed ] -> [ Compilation ]
                  /      (cpp)              hello.i             gcc
 [ Hearder Files ]                                               |
 studio.h                                                        |
@@ -235,7 +235,7 @@ studio.h                                                        |
   libc.a                hello.o            (as)            hello.s
   ...              /
       \           v
-        > [ Linking ] -> [ Executable]
+       +> [ Linking ] -> [ Executable]
             (ld)           a.out
 ```
 
@@ -422,4 +422,94 @@ COFF（Common file format）格式的变种。
 可执行文件格式存储。
 
 | ELF 文件类型 | 说明 | 实例 |
-| --- | - | - |
+| ----------- | ---- | ---- |
+| 可重定位文件（Relocatable File）| 这类文件包含了代码和数据，可以被用来链接成可执行文件或共享目标文件，静态链接库也可以归为这一类 | Linux 的 .o；Windows 的 .obj |
+| 共享目标文件（Shared Object File） | 这种文件包含了代码和数据，可以在以下两种情况中使用，一种是链接器可以使用这种文件跟其他的可重定位文件和共享目标文件链接，产生新的目标文件，第二种是动态连接器可以将几个这种共享目标文件与可执行文件结合，作为进程映像的一部分来运行 | Linux 的 .so，如 /lib/glibc-2.5.so，Windows 的 DLL |
+| 核心转储文件（Core Dump File） | 当进程意外终止时，系统可以将该进程的地址空间的内容及终止时的一些其他信息转储到核心转储文件 | Linux 下的 Core Dump |
+
+
+
+- 目标文件是什么样的？
+
+除了代码和数据以外，目标文件中还包括了链接时所需要的一些信息，比如符号表、调试信息、字符串等。
+一般目标文件将这些信息按不同的属性，以节（Section），或者叫段（Segment）的形式存储。
+
+程序源代码编译后的机器指令经常被放在代码段（Code Section）中，常见段名为“.code”或“.text”；
+全局变量和局部静态变量数据经常放在数据段（Data Section），一般名叫“.data”
+
+
+程序编译成目标文件的示例示例：
+
+```c
+// C code with various storage classes             Executable File/Object File
+                                                   ---------------------------
+int global_ini_var= 84; ---+                               File Header
+int globa_uninit_var;+      \                      ---------------------------
+                      \  +---\---------------+->          .text section
+void func(int i)       \/     \              |     ---------------------------
+{                      /\      +-------------|->          .data section 
+  printf("%d\n", i); -+  \     |             |     ---------------------------
+}                         +----|----+--------|->          .bss section
+                               |   /         |     ---------------------------
+int main(void)                 |  /          |
+{                             /  /           |
+  static int static_var = 85;+  /            |
+  static int static_var2;  ----+             |
+                                             |
+  int a = 1;                                 |
+  int b;                                     |
+  func1(static_var + static_var2 + a + b); --+
+  return 0;
+}
+```
+
+ELF 文件的开头是一个“文件头”，它描述了整个文件的属性，包括文件是否可执行、是静态链接
+还是动态链接以及入口地址（如果是可执行文件）、目标硬件、目标操作系统等信息。
+
+文件头还包括一个段表（Section Table），段表其实是一个描述文件中各个段的数组，它描述
+了各个段在文件中的偏移位置及段的属性等。
+
+.bss 段只是为未初始化的全局变量和局部静态变量预留位置而已，并没有内容，不占空间。
+
+BSS（Bloack Started by Symbol）
+
+总体来说，程序源代码被编译后主要分成代码段和数据段。
+
+> 真正了不起的程序员对自己的程序的每一个字节都了如指掌 ——佚名
+
+
+
+简单查看 object 文件结构：
+
+```
+$objectdump -h SimpleSection.o
+```
+
+额外段：只读数据段（.rodata）、注释信息段（.comment）和堆栈提示段（.note.GNU-stack）。
+
+size 命令查看 ELF 文件的代码段、数据段和 BSS 段的长度（dec 为十进制，hex 为十六进制）。
+
+```
+$size SimpleSection.o
+```
+
+
+- 代码段
+
+使用 objdump -s 以十六进制打印所有段的内容，-d 对包含指令的段进行返汇编。
+
+```
+$ objdump -s -d SimpleSection.o
+```
+
+
+
+- 数据段和只读数据段
+
+
+
+
+
+
+
+
