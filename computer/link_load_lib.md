@@ -225,7 +225,7 @@ Hello World
 ```
 [ Source Code ] \ 
 hello.c          \
-                  +-> [ Prepressing ] -> [ Preprocessed ] -> [ Compilation ]
+                  >-> [ Prepressing ] -> [ Preprocessed ] -> [ Compilation ]
                  /      (cpp)              hello.i             gcc
 [ Hearder Files ]                                               |
 studio.h                                                        |
@@ -235,7 +235,7 @@ studio.h                                                        |
   libc.a                hello.o            (as)            hello.s
   ...              /
       \           v
-       +> [ Linking ] -> [ Executable]
+       -> [ Linking ] -> [ Executable]
             (ld)           a.out
 ```
 
@@ -506,9 +506,219 @@ $ objdump -s -d SimpleSection.o
 
 - 数据段和只读数据段
 
+.data 段保存的是那些已经初始化了的全局变量和局部静态变量。
+
+查看字符串常量的存放情况：
+
+```
+$objdump -x -s -d SimpleSection.o
+```
+
+字节序（Bye Order）：大端（Big-endian）和小端（Little-endian）
 
 
 
+- .bss 段
+
+.bss 段存放的是未初始化的全局变量和局部晶态变量。
+
+符号表（Symbol Table）
+
+
+
+- 其他段
+
+常用段名
+
+| 常用的段名 | 说明 |
+| ---------- | ---- |
+| .rodata1   | Read only Data，这种段里存放的只是只读数据，比如字符串常量、全局 const 变量。跟 .rodata 一样 |
+| .comment | 存放的是编译器版本信息，例如“GCC:(GNU)4.2.0” |
+| .debug | 调试信息 |
+| .dynamic | 动态链接信息 |
+| .hash | 符号哈希表 |
+| .line | 调试时的行号表，即源代码与行号与编译后指令的对应表 |
+| .note | 额外的编译器信息。比如程序的公司名，发布版本号等 |
+| .strtab | String Table 字符串表，用于存储 ELF 文中用到的各种字符串 |
+| .symtab | Symbol Table 符号表 |
+| .shstrtab | Section String Table 段名表 |
+| .plt .got | 动态链接的跳转表和全局入口表 |
+| .init .fini | 程序初始化与终结代码段 |
+
+
+
+指定代码放置到指定段（GCC 提供支持）：
+
+```c
+__attribute__((section("FOO"))) int global = 42;
+__attribute__((section("BAR"))) void foo() {}
+```
+
+
+- ELF 文件结构描述
+
+ELF 目标文件格式的最前部是 ELF 文件头（ELF Header），它描述了整个文件的基本属性，比
+如 ELF 文件版本、目标机器型号、程序入口地址等，ELF 文件中与段有关的从要结构是段表
+（Section Header Table）。
+
+
+
+- 文件头
+
+使用 readelf 工具查看文件头：
+
+```
+$readelf -h SimpleSection.o
+```
+
+ELF 文件头中定义了 ELF 魔数、文件机器字节长度、数据存储方式、版本、运行平台、ABI 版
+本、ELF 重定位类型、硬件平台、硬件平台版本、入口地址、程序头入口和长度、段表的位置和
+长度及段的数量等。
+
+ELF 文件头结构及相关常数被定义在“/usr/include/elf.h”中。
+
+ELF 文件有 32 位版本和 64 位版本，描述结构的前缀为 Elf32 和 Elf64。
+
+```
+// /usr/include/elf.h
+
+#define EI_NIDENT (16)
+
+typedef struct
+{
+  unsigned char e_ident[EI_NIDENT];     /* Magic number and other info */
+  Elf32_Half    e_type;                 /* Object file type */
+  Elf32_Half    e_machine;              /* Architecture */
+  Elf32_Word    e_version;              /* Object file version */
+  Elf32_Addr    e_entry;                /* Entry point virtual address */
+  Elf32_Off     e_phoff;                /* Program header table file offset */
+  Elf32_Off     e_shoff;                /* Section header table file offset */
+  Elf32_Word    e_flags;                /* Processor-specific flags */
+  Elf32_Half    e_ehsize;               /* ELF header size in bytes */
+  Elf32_Half    e_phentsize;            /* Program header table entry size */
+  Elf32_Half    e_phnum;                /* Program header table entry count */
+  Elf32_Half    e_shentsize;            /* Section header table entry size */
+  Elf32_Half    e_shnum;                /* Section header table entry count */
+  Elf32_Half    e_shstrndx;             /* Section header string table index */
+} Elf32_Ehdr;
+```
+
+ELF 文件头结构成员含义
+
+| 成员        | readelf 输出结果与含义                                       |
+| ----------- | ------------------------------------------------------------ |
+| e_ident     | Magic:           7f 45 4c 46 01 01 01 00 00 00 00 00 00 00 00 00<br />Class:            ELF32<br />Data:             2's complement, little endian<br />Version:        1(current)<br />OS/ABI:         UNIX - System V<br />ABI Version: 0 |
+| e_type      | Type: REL(Relocatable file)<br />ELF 文件类型                |
+| e_machine   | Machine: Intel 80836<br />ELF 文件的 CPU 平台属性，相关常量以 EM_ 开头 |
+| e_version   | Version: 0x1<br />ELF 版本号。一般为常数 1                   |
+| e_entry     | Entry point address: 0x0<br />入口地址，规定 ELF 程序的入口虚拟地址，操作系统在加载完该程序后从这个地址开始执行进程的指令。可重定位文件一般没有入口地址，这个值为 0 |
+| e_phoff     | Start of program header: 0(bytes)                            |
+| e_shoff     | Start of section headers: 280(bytes into file)<br />段表在文件中的偏移， |
+| e_word      | Flags: 0x0<br />ELF 标志位，用来标识一些 ELF 文件平台相关的属性。相关常量格式一般为 EF_machine_flag，machine 为平台，flag 为标志 |
+| e_ehsize    | Size of this header: 52(bytes)<br />即 ELF 文件头本身的大小  |
+| e_phentsize | Size of program headers: {}(bytes)                           |
+| e_phnum     | Number of program headers: ()                                |
+| e_shentsize | Size of section headers: 40(bytes)<br />段表描述符的大小，这个一般等于一节 |
+| e_shnum     | Number of section headers: 11<br />段表描述符数量。这个值等于 ELF 文件中拥有段的数量 |
+| e_shstrndx  | Section header string table index: 8<br />段表字符串表所在的段在段表中的下标 |
+
+
+
+- ELF 魔数
+
+最前面的 Magic 的 16 个字节刚好对应“Elf32_Endr”的 e_ident 这个成员。
+
+第一个字节 0x46 对应 ASCII 字符里面的 DEL 控制符，后面 3 个字节正好对应“ELF” 3 个字符。
+
+```
+7f 45 4c 46 01 01 01 00 00 00 00 00 00 00 00 00
+^  ^  ^  ^   ^  ^
+  "E  L  F"  |  |
+            /    \
+[ ELF 文件类型 ]  [ 字节序 ]
+0 无效文件        0 无效格式
+1 32 位 ELF 文件  1 小端格式
+2 64 位 ELF 文件  2 大端格式
+```
+
+
+
+- 文件类型
+
+e_type 成员表示 ELF 文件类型，系统通过这个常量来判断 ELF 文件类型，而不是文件扩展名。
+
+| 常量 | 值 | 含义 |
+| ---- | -- | ---- |
+| ET_REL | 1 | 可重定位文件，一般为 .o 文件 |
+| ET_EXEC | 2 | 可执行文件 |
+| ET_DYN | 3 | 共享目标文件，一般为 .so 文件 |
+
+
+
+- 机器类型
+
+ELF 文件被设计成可以在多个平台下使用，但并不表示同一个 ELF 文件可以在不同的平台下使
+用，而是表示不同平台下的 ELF 文件都遵循同一套 ELF 标准。e_machine 成员就表示该属性。
+
+
+
+- 段表
+
+段表（Section Header Table）描述了各个段的信息，比如每个段的段名、段的长度、在文件
+中的偏移、读写权限及段的其他属性。
+
+编译器、链接器和装载器都是依靠段表来定位和访问各个段的属性的。段表在 ELF 文件头的位
+置由“e_shoff”成员决定。
+
+查看段表：
+
+```
+$readelf -S SimpleSection.o
+```
+
+段表是一个以“Elf32_Shdr”结构体为元素的数组。
+
+每一个“Elf32_Shdr”结构体对应一个段。“Elf32_Shdr”又被称为段描述符（Section Descriptor）。
+
+
+
+Elf32_Shdr 段描述符结构：
+
+```c
+// /usr/include/elf.h
+
+/* Section header.  */
+
+typedef struct
+{
+  Elf32_Word    sh_name;                /* Section name (string tbl index) */
+  Elf32_Word    sh_type;                /* Section type */
+  Elf32_Word    sh_flags;               /* Section flags */
+  Elf32_Addr    sh_addr;                /* Section virtual addr at execution */
+  Elf32_Off     sh_offset;              /* Section file offset */
+  Elf32_Word    sh_size;                /* Section size in bytes */
+  Elf32_Word    sh_link;                /* Link to another section */
+  Elf32_Word    sh_info;                /* Additional section information */
+  Elf32_Word    sh_addralign;           /* Section alignment */
+  Elf32_Word    sh_entsize;             /* Entry size if section holds table */
+} Elf32_Shdr;
+```
+
+
+
+Elf32_Shdr 各个成员的含义：
+
+| 成员               | 含义                                                         |
+| ------------------ | ------------------------------------------------------------ |
+| sh_name            | Section name 段名<br />段名是个字符串，它位于一个叫做“.shstrtab”的字符串表。sh_name 是段名在“.shstrtab”中的偏移 |
+| sh_tpe             | Section type 段的类型                                        |
+| sh_flags           | Section flag 段的标志                                        |
+| sh_addr            | Section Address 段虚拟地址<br />如果该段可以被加载，这 sh_addr 为该段被加载后在进程地址空间中的地址；否未 sh_addr 为 0 |
+| sh_offset          | Section Offset 段偏移<br />如果该段存在于文件中，则表示该段在文件中的偏移；否则无意义。比如对 BSS 段来说 |
+| sh_size            | Section Size 段的长度                                        |
+| sh_link 和 sh_info | Section Link and Section Information 段链接信息              |
+| sh_addralign       | Section Address Alignment 段地址对齐<br />有些段对段地址对齐有要求，比如TODO |
+| sh_entsize         | Section Entry Size 项的长度<br />有些段TODO                  |
 
 
 
