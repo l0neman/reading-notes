@@ -213,10 +213,14 @@ int main()
 ```
 
 ```
-$gcc hello.c
+$ gcc hello.c
 $ ./a.out
 Hello World
 ```
+
+
+
+### 2.1 被隐藏的过程
 
 编译过程：
 
@@ -244,9 +248,9 @@ studio.h                                                        |
 - 预处理
 
 ```
-$gcc -E hello.c -o hello.i
+$ gcc -E hello.c -o hello.i
 or:
-$cpp hello.c > hello.i
+$ cpp hello.c > hello.i
 ```
 
 预编译过程主要处理哪些源代码文件中以“#”开头的预编译指令。
@@ -270,9 +274,9 @@ $cpp hello.c > hello.i
 应的汇编文件。
 
 ```
-$gcc -S hello.i -o hello.s
+$ gcc -S hello.i -o hello.s
 or
-$gcc -S hello.c -o hello.s
+$ gcc -S hello.c -o hello.s
 ```
 
 gcc 是编译器套件，根据不同参数要求去调用预编译程序 cc1、汇编器 as、连接器 ld。
@@ -284,11 +288,11 @@ gcc 是编译器套件，根据不同参数要求去调用预编译程序 cc1、
 汇编器将汇编代码转变成机器可以执行的指令，每一个汇编语句几乎对应一条机器指令。
 
 ```
-$as hello.s -o hello.o
+$ as hello.s -o hello.o
 or:
-$gcc -c hello.s -o hello.o
+$ gcc -c hello.s -o hello.o
 or:
-$gcc -c hello.c -o hello.o
+$ gcc -c hello.c -o hello.o
 ```
 
 
@@ -299,7 +303,7 @@ $gcc -c hello.c -o hello.o
 
 
 
-- 编译器做了什么
+### 2.2 编译器做了什么
 
 编译过程：
 
@@ -383,13 +387,13 @@ movl %ecx, array(, eax, 4)  ; array[index] = ecx
 
 
 
-- 连接器
+### 链接器
 
 重新计算各个目标的地址的过程被叫做重定位（Relocation）。
 
 
 
-- 静态链接
+### 静态链接
 
 链接（Linking）过程主要包括地址空间分配（Address and Storage Allocation）、符号
 决议（Synmbol Resolution）和重定位（Relocation）等。
@@ -404,7 +408,7 @@ movl %ecx, array(, eax, 4)  ; array[index] = ecx
 
 ## 第 3 章 目标文件里有什么
 
-- 目标文件的格式
+### 3.1 目标文件的格式
 
 PC 平台主流的可执行文件格式（Executable），主要是 Windows 下的 PE
 （Portable Execuable）和 Linux 的 ELF（Executable Linkable Format），它们都是 
@@ -429,7 +433,7 @@ COFF（Common file format）格式的变种。
 
 
 
-- 目标文件是什么样的？
+### 3.2 目标文件是什么样的？
 
 除了代码和数据以外，目标文件中还包括了链接时所需要的一些信息，比如符号表、调试信息、字符串等。
 一般目标文件将这些信息按不同的属性，以节（Section），或者叫段（Segment）的形式存储。
@@ -482,7 +486,7 @@ BSS（Bloack Started by Symbol）
 简单查看 object 文件结构：
 
 ```
-$objectdump -h SimpleSection.o
+$ objectdump -h SimpleSection.o
 ```
 
 额外段：只读数据段（.rodata）、注释信息段（.comment）和堆栈提示段（.note.GNU-stack）。
@@ -490,7 +494,7 @@ $objectdump -h SimpleSection.o
 size 命令查看 ELF 文件的代码段、数据段和 BSS 段的长度（dec 为十进制，hex 为十六进制）。
 
 ```
-$size SimpleSection.o
+$ size SimpleSection.o
 ```
 
 
@@ -511,7 +515,7 @@ $ objdump -s -d SimpleSection.o
 查看字符串常量的存放情况：
 
 ```
-$objdump -x -s -d SimpleSection.o
+$ objdump -x -s -d SimpleSection.o
 ```
 
 字节序（Bye Order）：大端（Big-endian）和小端（Little-endian）
@@ -555,7 +559,7 @@ __attribute__((section("BAR"))) void foo() {}
 ```
 
 
-- ELF 文件结构描述
+### 3.4 ELF 文件结构描述
 
 ELF 目标文件格式的最前部是 ELF 文件头（ELF Header），它描述了整个文件的基本属性，比
 如 ELF 文件版本、目标机器型号、程序入口地址等，ELF 文件中与段有关的从要结构是段表
@@ -568,7 +572,7 @@ ELF 目标文件格式的最前部是 ELF 文件头（ELF Header），它描述�
 使用 readelf 工具查看文件头：
 
 ```
-$readelf -h SimpleSection.o
+$ readelf -h SimpleSection.o
 ```
 
 ELF 文件头中定义了 ELF 魔数、文件机器字节长度、数据存储方式、版本、运行平台、ABI 版
@@ -660,6 +664,17 @@ e_type 成员表示 ELF 文件类型，系统通过这个常量来判断 ELF 文
 ELF 文件被设计成可以在多个平台下使用，但并不表示同一个 ELF 文件可以在不同的平台下使
 用，而是表示不同平台下的 ELF 文件都遵循同一套 ELF 标准。e_machine 成员就表示该属性。
 
+相关常量以“EM”开头：
+
+| 常量     | 值 | 含义           |
+| -------- | -- | -------------  |
+| EM_M32   | 1  | AT&T WE 32100  |
+| EM_SPARC | 2  | SPARC          |
+| EM_386   | 3  | Intel x86      |
+| EM_68K   | 4  | Motorola 68000 |
+| EM_88K   | 5  | Motorola 88000 |
+| EM_860   | 6  | Intel 80860    |
+
 
 
 - 段表
@@ -673,7 +688,7 @@ ELF 文件被设计成可以在多个平台下使用，但并不表示同一个 
 查看段表：
 
 ```
-$readelf -S SimpleSection.o
+$ readelf -S SimpleSection.o
 ```
 
 段表是一个以“Elf32_Shdr”结构体为元素的数组。
@@ -717,8 +732,151 @@ Elf32_Shdr 各个成员的含义：
 | sh_offset          | Section Offset 段偏移<br />如果该段存在于文件中，则表示该段在文件中的偏移；否则无意义。比如对 BSS 段来说 |
 | sh_size            | Section Size 段的长度                                        |
 | sh_link 和 sh_info | Section Link and Section Information 段链接信息              |
-| sh_addralign       | Section Address Alignment 段地址对齐<br />有些段对段地址对齐有要求，比如TODO |
-| sh_entsize         | Section Entry Size 项的长度<br />有些段TODO                  |
+| sh_addralign       | Section Address Alignment 段地址对齐<br />有些段对段地址对齐有要求，比如有个段刚开始的位置包含一个 double 变量,因为 Inel x86 系统要求浮点数的存储地址必须是本身的整数倍，也就是说保存 double 变量的地址必须是 8 字节的整数倍。这样一来对于一个段来说，它的 sh_addr 必须是 8 的整数倍。<br />由于地址对齐的数量都是 2 的整数倍，sh_addralign 表示是地址对齐数量中的指数，即 sh_addrlign = 3 表示对齐为 2 的 3 次方倍，即 8 倍，依次类推，所以一个段的地址 sh_addr 必须满足下面的条件：sh_addr % (2 ** sh_addralign) = 0。** 表示指数运算。<br />如果 sh_addralign 为 0 或 1，则表示该段没有对齐要求。 |
+| sh_entsize         | Section Entry Size 项的长度<br />有些段包含了一些固定大小的项，比如符号表，它包含的每个符号所占的大小都是一样的，对于这种段，sh_entsize 表示每个项的大小。如果为 0，则表示该段不包含固定大小的项。 |
+
+
+
+- 段的类型（sh_type）
+
+段的名字只是在编译和链接过程中有意义，不能真正表示段的类型。
+
+决定段的属性和类型的是段的类型（sh_type）和段的属性（sh_flag）。
+
+| 常量         | 值 | 含义                                  |
+| SHT_NULL     | 0  | 无效段                                |
+| SHT_PROGBITS | 1  | 程序段、代码段、数据段都是这种类型     |
+| SHT_SYMTAB   | 2  | 表示该段的内容为符号表                 |
+| SHT_STRTAB   | 3  | 表示该段的内容为字符串表               |
+| SHT_RELA     | 4  | 重定位表，该段包含了重定位信息         |
+| SHT_HASH     | 5  | 符号表的哈希表                        |
+| SHT_DYNAMIC  | 6  | 动态链接信息                          |
+| SHT_NOTE     | 7  | 提示性信息                            |
+| SHT_NOBITS   | 8  | 表示该段在文件中没有内容，比如 .bss 段 |
+| SHT_REL      | 9  | 该段包含了重定位信息                  |
+| SHT_SHLIB    | 10 | 保留                                  |
+| SHT_DNYSYM   | 11 | 动态链接的符号表                      |
+
+
+
+- 段的标志位（sh_flag）
+
+段的标志位表示该段在进程虚拟地址空间中的属性，比如是否可写，是否可执行等。
+
+| 常量          | 值 | 含义 |
+| SHF_WRITE     | 1  | 表示该段在进程空间中可写 |
+| SHF_ALLOC     | 2  | 表示该段在进程空间中需要分配空间。有些包含指示或者控制信息的段不需要在进程空间中被分配空间，它们一般不会有这个标志。像代码段、数据段和 .bss 段一般都会有这个标志位 |
+| SHF_EXECINSTR | 4  | 表示该段在进程空间中可以被执行,一般指代码段 |
+
+系统保留段相关属性：
+
+| Name      | sh_type      | sh_flags                                                     |
+| --------- | ------------ | ------------------------------------------------------------ |
+| .bss      | SHT_NOBITS   | SHF_ALLOC + SHF_WRITE                                        |
+| .comment  | SHT_PROGBITS | none                                                         |
+| .data     | SHT_PROGBITS | SHF_ALLOC + SHF_WRITE                                        |
+| .data1    | SHT_PROGBITS | SHF_ALLOC + SHF_WRITE                                        |
+| .debug    | SHT_PROGBITS | none                                                         |
+| .dynamic  | SHT_DYNAMIC  | SHF_ALLOC + SHF_WRITE<br />有些系统下 .dynamic 段可能是只读的，所以没有 SHF_WRITE 标志位 |
+| .hash     | SHT_HASH     | SHF_ALLOC                                                    |
+| .line     | SHT_PROGBITS | none                                                         |
+| .note     | SHT_NOTE     | none                                                         |
+| .rodata   | SHT_PROGBITS | SHF_ALLOC                                                    |
+| .rodata1  | SHT_PROGBITS | SHF_ALLOC                                                    |
+| .shstrtab | SHT_STRTAB   | none                                                         |
+| .strtab   | SHT_STRTAB   | 如果该 ELF 文件中有可装载的段需要用到该字符串表，那么字符串表也将被装载的到内存空间，则有 SHF_ALLOC 标志位 |
+| .symtab   | SHT_SYMTAB   | 同字符串表                                                   |
+| .text     | SHT_PROGBITS | SHF_ALLOC + SHF_WRITE                                        |
+
+
+
+- 段的链接信息（sh_link、sh_info）
+
+段的类型必须是链接相关的（动态或静态），比如重定位表、符号表等。否则这两个成员无意义。
+
+| sh_type                    | sh_link                              | sh_info                            |
+| -------------------------- | ------------------------------------ | ---------------------------------- |
+| SHT_DYNAMIC                | 该段所使用的字符串表在段表中的下标   | 0                                  |
+| SHT_HASH                   | 该段所使用的符号表在段表中的下标     | 0                                  |
+| SHT_REL<br />SHT_RELA      | 该段所使用的相应符号表在段表中的下标 | 该重定位表所作用的段在段表中的下标 |
+| SHT_SYMTAB<br />SHT_DYNSYM | 操作系统相关的                       | 操作系统相关的                     |
+| other                      | SHN_UNDEF                            | 0                                  |
+
+
+
+- 重定位表（Relocation Table）
+
+“.rel.text”段的类型是“SHT_REL”，它表示“.text”的重定位表。
+
+
+
+- 字符串表（String Table）
+
+
+
+### 3.5 链接的接口——符号
+
+目标文件 B 用到了目标文件 A 中的函数“foo”，那么我们就称目标文件 A 定义（Define）了
+函数“foo”，称目标文件 B 引用（Reference）了目标文件 A 中的函数“foo”。
+
+在链接中，函数和变量统称为符号（Symbol），函数名和变量名就是符号名（Symbol Name）。
+
+每一个目标文件都会有一个相应的符号表（Symbol Table），每一个定义的符号有一个对应的值
+，叫做符号值（Symbol Value），对于函数和变量来说，就是它们的地址。
+
+符号表中的所有符号分为如下几类：
+
+1. 定义在本目标文件的全局符号，可被其他目标文件引用；
+2. 定义在本目标文件的全局符号，却没有定义在目标文件，一般叫做外部符号（External Symbol），
+也就是符号引用，例如“printf”；
+3. 段名，这种符号往往由编译器产生，它的值就是该段的起始地址；
+4. 局部符号，这种符号只在编译单元内部可见，对于链接过程没有作用，调试器可以使用这些
+符号来分析程序或崩溃时的核心转储文件；
+5. 行号信息，即目标文件指令与源代码中代码行的对应关系，它也是可选的。
+
+
+
+使用“nm”工具查看符号：
+
+```
+$ nm SimpleSection.o
+```
+
+
+- ELF 符号结构
+
+符号表存在于“.symtab”段中，符号表的结构是一个 Elf32_Sym（32 位 ELF 文件）结构的数组。
+每个 Elf32_Sym 结构对应一个符号，数组的第一个元素为无效的“未定义”符号。
+
+Elf32_Sym 结构如下：
+
+```c
+// /usr/include/elf.h
+
+/* Symbol table entry.  */
+
+typedef struct
+{
+  Elf32_Word    st_name;                /* Symbol name (string tbl index) */
+  Elf32_Addr    st_value;               /* Symbol value */
+  Elf32_Word    st_size;                /* Symbol size */
+  unsigned char st_info;                /* Symbol type and binding */
+  unsigned char st_other;               /* Symbol visibility */
+  Elf32_Section st_shndx;               /* Section index */
+} Elf32_Sym;
+```
+
+成员定义如下：
+
+| 成员 | 含义 |
+| ---- | ---- |
+| todo | todo |
+
+
+
+
+
+
 
 
 
