@@ -12,11 +12,9 @@
 
 北桥（Northbridge，PCI Bridge）芯片用于连接所有高速设备，包括 CPU、内存和 PCI 总线。
 
-对称多处理器（SMP，Symmetrical Multi-Processing），就是每个 CPU 在系统中所处的地
-位和所发挥的功能是一样的，是相互对称的。
+对称多处理器（SMP，Symmetrical Multi-Processing），就是每个 CPU 在系统中所处的地位和所发挥的功能是一样的，是相互对称的。
 
-多核处理器（Multi-core Processor），将多个处理器打包，以一个处理器的外包装进行
-出售，处理器之间缓存部件，只保留多个核心。
+多核处理器（Multi-core Processor），将多个处理器打包，以一个处理器的外包装进行出售，处理器之间缓存部件，只保留多个核心。
 
 
 
@@ -27,11 +25,9 @@
 
 接口（Interface），每个层次之间通信的协议。
 
-开发工具和应用程序属于同一个层次，它们都使用应用程序编程接口（Application Program 
-Interface）。
+开发工具和应用程序属于同一个层次，它们都使用应用程序编程接口（Application Program Interface）。
 
-运行库使用操作系统提供的系统调用接口（System call Interface），系统调用接口在现
-实中往往以软件中断（Software Inerrupt）的方式提供。
+运行库使用操作系统提供的系统调用接口（System call Interface），系统调用接口在现实中往往以软件中断（Software Inerrupt）的方式提供。
 
 硬件规格（Hardware Specification），指驱动程序如可操作硬件，如何与硬件进行通信。
 
@@ -39,10 +35,8 @@ Interface）。
 
 - 操作系统
 
-1. 多道程序（Multiprogramming），当某个程序无需使用 CPU 时，监控程序就把另外正在
-等待 CPU 资源的程序启动，使得 CPU 能够充分利用起来。
-2. 分时系统（Time-Sharing System），每个程序运行一段时间以后都主动让出 CPU 给其
-他程序，使得一段时间内每个程序都有机会运行一小段时间。
+1. 多道程序（Multiprogramming），当某个程序无需使用 CPU 时，监控程序就把另外正在等待 CPU 资源的程序启动，使得 CPU 能够充分利用起来。
+2. 分时系统（Time-Sharing System），每个程序运行一段时间以后都主动让出 CPU 给其他程序，使得一段时间内每个程序都有机会运行一小段时间。
 3. 多任务系统（Multi-tasking System），所有程序都以进程的方式运作。
 
 抢占式（Preemptive）
@@ -71,16 +65,13 @@ Interface）。
 
 - 分页（Paging）
 
-把地址空间人为地等分成固定大小的页，每一页的大小由硬件决定，或硬件支持多种大小的
-页，由操作系统决定页的大小。
+把地址空间人为地等分成固定大小的页，每一页的大小由硬件决定，或硬件支持多种大小的页，由操作系统决定页的大小。
 
-虚拟空间的页叫做虚拟页（VP，Virtual Page），物理内存中的页叫做物理页
-（PP，Physical Page），把磁盘中的页叫做磁盘页（DP，Disk Page）。
+虚拟空间的页叫做虚拟页（VP，Virtual Page），物理内存中的页叫做物理页（PP，Physical Page），把磁盘中的页叫做磁盘页（DP，Disk Page）。
 
 当进程访问对应的页不在内存中时，硬件会捕获到这个消息，就是页错误（Page Fault）。
 
-虚拟存储硬件支持，几乎所有的硬件都采用 MMU（Memory Management Unit）部件进行页映
-射。通常 MMU 都集成在 CPU 内部，不会以单独的形式出现。
+虚拟存储硬件支持，几乎所有的硬件都采用 MMU（Memory Management Unit）部件进行页映射。通常 MMU 都集成在 CPU 内部，不会以单独的形式出现。
 
 ```
 [ CPU ] -> Virtual Address -> [ MMU ] -> Physical Address -> [ Physical Memory ]
@@ -92,8 +83,7 @@ Interface）。
 
 线程：
 
-线程（Thread），或被称为轻量级进程（Lightweight Process LWP），是程序执行流的最
-小单元。一个标准的线程由线程 ID、当前指令指针（PC），寄存器集合和堆栈组成。
+线程（Thread），或被称为轻量级进程（Lightweight Process LWP），是程序执行流的最小单元。一个标准的线程由线程 ID、当前指令指针（PC），寄存器集合和堆栈组成。
 
 
 
@@ -151,15 +141,13 @@ CPU 密集型（CPU Bound Thread），很少等待的线程。
 2. 根据进入等待状态的频繁程度提升或降低优先级；
 3. 长时间得不到执行而被提升优先级。
 
-抢占（Preemption），线程在用尽时间片之后会被强制剥夺继续执行的权力，进行就绪状态，
-即之后别的线程抢占了当前线程。
+抢占（Preemption），线程在用尽时间片之后会被强制剥夺继续执行的权力，进行就绪状态，即之后别的线程抢占了当前线程。
 
 
 
 - Linux 线程
 
-Linux 中不存在线程的概念，Linux 将所有执行实体（无论是线程或进程）都成为任务（Task）
-，每个任务概念上都类似于一个单线程的进程，具有内存空间、执行实体、文件资源等。
+Linux 中不存在线程的概念，Linux 将所有执行实体（无论是线程或进程）都成为任务（Task），每个任务概念上都类似于一个单线程的进程，具有内存空间、执行实体、文件资源等。
 
 Linux 创建新任务方式：
 
@@ -212,7 +200,7 @@ int main()
 }
 ```
 
-```
+```shell
 $ gcc hello.c
 $ ./a.out
 Hello World
@@ -247,7 +235,7 @@ studio.h                                                        |
 
 - 预处理
 
-```
+```shell
 $ gcc -E hello.c -o hello.i
 or:
 $ cpp hello.c > hello.i
@@ -259,21 +247,18 @@ $ cpp hello.c > hello.i
 
 1. 将所有的“#define”删除，并展开所有宏定义；
 2. 处理所有条件预编译指令，如“#if”、“#elif”、“#elde”、“#endif”；
-3. 处理“#include”预编译指令，将被包含的文件插入到该预编译指令的位置。注意，这
-个过程是递归进行的，也就是说被包含的文件可能还包含其他文件；
+3. 处理“#include”预编译指令，将被包含的文件插入到该预编译指令的位置。注意，这个过程是递归进行的，也就是说被包含的文件可能还包含其他文件；
 4. 删除所有的“//”和“/**/”；
-5. 添加行号和文件名标识，比如 #2“hello.c”2，以便于编译时编译器产生调试用的行号
-信息及用于编译时产生编译错误或警告时能够显示行号；
+5. 添加行号和文件名标识，比如 #2“hello.c”2，以便于编译时编译器产生调试用的行号信息及用于编译时产生编译错误或警告时能够显示行号；
 6. 保留所有 #pragma 编译器指令，因为编译器需要使用它们。
 
 
 
 - 编译
 
-编译过程就是把预处理完的文件进行一系列词法分析、语法分析、语义分析及优化后产生相
-应的汇编文件。
+编译过程就是把预处理完的文件进行一系列词法分析、语法分析、语义分析及优化后产生相应的汇编文件。
 
-```
+```shell
 $ gcc -S hello.i -o hello.s
 or
 $ gcc -S hello.c -o hello.s
@@ -287,7 +272,7 @@ gcc 是编译器套件，根据不同参数要求去调用预编译程序 cc1、
 
 汇编器将汇编代码转变成机器可以执行的指令，每一个汇编语句几乎对应一条机器指令。
 
-```
+```shell
 $ as hello.s -o hello.o
 or:
 $ gcc -c hello.s -o hello.o
@@ -324,8 +309,7 @@ $ gcc -c hello.c -o hello.o
 
 1. 词法分析
 
-源代码首先被输入扫描器（Scanner），运用类似于有限状态机（Finite State Machine）
-的算法可以轻松地将源代码的字符序列分割成一系列的记号（Token）。
+源代码首先被输入扫描器（Scanner），运用类似于有限状态机（Finite State Machine）的算法可以轻松地将源代码的字符序列分割成一系列的记号（Token）。
 
 记号一般分为：关键字、标识符、字面量（数字、字符串等）和特殊符号（加号、等号）。
 
@@ -335,8 +319,7 @@ lex 程序可以实现词法扫描。
 
 2. 语法分析
 
-语法分析器（Grammar Parser）将对由扫描器产生的记号进行语法分析，产生语法树
-（Syntax Tree）。整个过程采用了上下文无关语法（Context-free Grammar）的分析手段。
+语法分析器（Grammar Parser）将对由扫描器产生的记号进行语法分析，产生语法树（Syntax Tree）。整个过程采用了上下文无关语法（Context-free Grammar）的分析手段。
 
 语法树是以表达式（Expression）为节点的树。
 
@@ -346,8 +329,7 @@ yacc（Yet Another Compiler Compiler）程序可用于词法分析。
 
 3. 语义分析
 
-语义分析器（Semantic Analyzer）对表达式做静态语义（Static Semantic，在编译期确定
-的语义）分析，不了解这个语句是否有意义。
+语义分析器（Semantic Analyzer）对表达式做静态语义（Static Semantic，在编译期确定的语义）分析，不了解这个语句是否有意义。
 
 动态语义（Dynamic Semantic）指在运行期才能确定的语义。
 
@@ -365,8 +347,7 @@ yacc（Yet Another Compiler Compiler）程序可用于词法分析。
 
 5. 目标代码生成与优化
 
-源代码级优化器产生中间代码标志着下面的过程都属于编辑器后端。后端主要包括代码生成
-器（Code Generator）和目标代码优化器（Target Code Optimizer）。
+源代码级优化器产生中间代码标志着下面的过程都属于编辑器后端。后端主要包括代码生成器（Code Generator）和目标代码优化器（Target Code Optimizer）。
 
 示例代码序列：
 
@@ -380,8 +361,7 @@ movl %ecx, array(, eax, 4)  ; array[index] = ecx
 
 目标代码优化器可能采用合适的寻址方式、使用位移来代替乘法运算、删除多余的指令等。
 
-上述示例代码乘法由一条基址比例变址寻址（Base Index Scale Addressing）的 lea 指令
-完成，随后由 mov 指令完成赋值操作。
+上述示例代码乘法由一条基址比例变址寻址（Base Index Scale Addressing）的 lea 指令完成，随后由 mov 指令完成赋值操作。
 
 源代码此时被便衣成为目标代码，但是 index 和 array 的地址还未确定。
 
@@ -395,14 +375,11 @@ movl %ecx, array(, eax, 4)  ; array[index] = ecx
 
 ### 静态链接
 
-链接（Linking）过程主要包括地址空间分配（Address and Storage Allocation）、符号
-决议（Synmbol Resolution）和重定位（Relocation）等。
+链接（Linking）过程主要包括地址空间分配（Address and Storage Allocation）、符号决议（Synmbol Resolution）和重定位（Relocation）等。
 
-运行时库（Runtime Library），它是支持程序运行的基本函数的集合。就是一些最常用的
-代码编译成目标文件后打包存放。
+运行时库（Runtime Library），它是支持程序运行的基本函数的集合。就是一些最常用的代码编译成目标文件后打包存放。
 
-对地址的修正过程叫做重定位（Relocation），每一个要修正的地方叫一个重定位入口
-（Relocation Entry）
+对地址的修正过程叫做重定位（Relocation），每一个要修正的地方叫一个重定位入口（Relocation Entry）
 
 
 
@@ -410,20 +387,13 @@ movl %ecx, array(, eax, 4)  ; array[index] = ecx
 
 ### 3.1 目标文件的格式
 
-PC 平台主流的可执行文件格式（Executable），主要是 Windows 下的 PE
-（Portable Execuable）和 Linux 的 ELF（Executable Linkable Format），它们都是 
-COFF（Common file format）格式的变种。
+PC 平台主流的可执行文件格式（Executable），主要是 Windows 下的 PE（Portable Execuable）和 Linux 的 ELF（Executable Linkable Format），它们都是 COFF（Common file format）格式的变种。
 
-目标文件就是源代码编译后但未未进行链接的那些中间问题（Windows 的 .obj 和 Linux 下
-的 .o）。
+目标文件就是源代码编译后但未未进行链接的那些中间问题（Windows 的 .obj 和 Linux 下的 .o）。
 
-可以广义的将目标文件和可执行文件看作同一类型的文件，Windows 下，统称它们为 PE-COFF 
-文件格式。Linux 下，可统称为 ELF 文件。还有不太常见的 Intel/Microsoft 的 OMF
-（Object Module Format）、Unix a.out 格式和 MS-DOS.COM 格式等。
+可以广义的将目标文件和可执行文件看作同一类型的文件，Windows 下，统称它们为 PE-COFF 文件格式。Linux 下，可统称为 ELF 文件。还有不太常见的 Intel/Microsoft 的 OMF（Object Module Format）、Unix a.out 格式和 MS-DOS.COM 格式等。
 
-动态链接库（DLL，Dynamic Linking Library）（Windows 的 .dll 和 Linux 的 .so）以及
-静态链接库（Static Linking Library）（Windows 的 .lib 和 Linux 的 .a）文件都按照
-可执行文件格式存储。
+动态链接库（DLL，Dynamic Linking Library）（Windows 的 .dll 和 Linux 的 .so）以及静态链接库（Static Linking Library）（Windows 的 .lib 和 Linux 的 .a）文件都按照可执行文件格式存储。
 
 | ELF 文件类型 | 说明 | 实例 |
 | ----------- | ---- | ---- |
@@ -438,8 +408,7 @@ COFF（Common file format）格式的变种。
 除了代码和数据以外，目标文件中还包括了链接时所需要的一些信息，比如符号表、调试信息、字符串等。
 一般目标文件将这些信息按不同的属性，以节（Section），或者叫段（Segment）的形式存储。
 
-程序源代码编译后的机器指令经常被放在代码段（Code Section）中，常见段名为“.code”或“.text”；
-全局变量和局部静态变量数据经常放在数据段（Data Section），一般名叫“.data”
+程序源代码编译后的机器指令经常被放在代码段（Code Section）中，常见段名为“.code”或“.text”；全局变量和局部静态变量数据经常放在数据段（Data Section），一般名叫“.data”
 
 
 程序编译成目标文件的示例示例：
@@ -467,11 +436,9 @@ int main(void)                 |  /          |
 }
 ```
 
-ELF 文件的开头是一个“文件头”，它描述了整个文件的属性，包括文件是否可执行、是静态链接
-还是动态链接以及入口地址（如果是可执行文件）、目标硬件、目标操作系统等信息。
+ELF 文件的开头是一个“文件头”，它描述了整个文件的属性，包括文件是否可执行、是静态链接还是动态链接以及入口地址（如果是可执行文件）、目标硬件、目标操作系统等信息。
 
-文件头还包括一个段表（Section Table），段表其实是一个描述文件中各个段的数组，它描述
-了各个段在文件中的偏移位置及段的属性等。
+文件头还包括一个段表（Section Table），段表其实是一个描述文件中各个段的数组，它描述了各个段在文件中的偏移位置及段的属性等。
 
 .bss 段只是为未初始化的全局变量和局部静态变量预留位置而已，并没有内容，不占空间。
 
@@ -485,7 +452,7 @@ BSS（Bloack Started by Symbol）
 
 简单查看 object 文件结构：
 
-```
+```shell
 $ objectdump -h SimpleSection.o
 ```
 
@@ -493,7 +460,7 @@ $ objectdump -h SimpleSection.o
 
 size 命令查看 ELF 文件的代码段、数据段和 BSS 段的长度（dec 为十进制，hex 为十六进制）。
 
-```
+```shell
 $ size SimpleSection.o
 ```
 
@@ -502,7 +469,7 @@ $ size SimpleSection.o
 
 使用 objdump -s 以十六进制打印所有段的内容，-d 对包含指令的段进行返汇编。
 
-```
+```shell
 $ objdump -s -d SimpleSection.o
 ```
 
@@ -514,7 +481,7 @@ $ objdump -s -d SimpleSection.o
 
 查看字符串常量的存放情况：
 
-```
+```shell
 $ objdump -x -s -d SimpleSection.o
 ```
 
@@ -561,9 +528,7 @@ __attribute__((section("BAR"))) void foo() {}
 
 ### 3.4 ELF 文件结构描述
 
-ELF 目标文件格式的最前部是 ELF 文件头（ELF Header），它描述了整个文件的基本属性，比
-如 ELF 文件版本、目标机器型号、程序入口地址等，ELF 文件中与段有关的从要结构是段表
-（Section Header Table）。
+ELF 目标文件格式的最前部是 ELF 文件头（ELF Header），它描述了整个文件的基本属性，比如 ELF 文件版本、目标机器型号、程序入口地址等，ELF 文件中与段有关的从要结构是段表（Section Header Table）。
 
 
 
@@ -571,19 +536,17 @@ ELF 目标文件格式的最前部是 ELF 文件头（ELF Header），它描述�
 
 使用 readelf 工具查看文件头：
 
-```
+```shell
 $ readelf -h SimpleSection.o
 ```
 
-ELF 文件头中定义了 ELF 魔数、文件机器字节长度、数据存储方式、版本、运行平台、ABI 版
-本、ELF 重定位类型、硬件平台、硬件平台版本、入口地址、程序头入口和长度、段表的位置和
-长度及段的数量等。
+ELF 文件头中定义了 ELF 魔数、文件机器字节长度、数据存储方式、版本、运行平台、ABI 版本、ELF 重定位类型、硬件平台、硬件平台版本、入口地址、程序头入口和长度、段表的位置和长度及段的数量等。
 
 ELF 文件头结构及相关常数被定义在“/usr/include/elf.h”中。
 
 ELF 文件有 32 位版本和 64 位版本，描述结构的前缀为 Elf32 和 Elf64。
 
-```
+```c
 // /usr/include/elf.h
 
 #define EI_NIDENT (16)
@@ -661,8 +624,7 @@ e_type 成员表示 ELF 文件类型，系统通过这个常量来判断 ELF 文
 
 - 机器类型
 
-ELF 文件被设计成可以在多个平台下使用，但并不表示同一个 ELF 文件可以在不同的平台下使
-用，而是表示不同平台下的 ELF 文件都遵循同一套 ELF 标准。e_machine 成员就表示该属性。
+ELF 文件被设计成可以在多个平台下使用，但并不表示同一个 ELF 文件可以在不同的平台下使用，而是表示不同平台下的 ELF 文件都遵循同一套 ELF 标准。e_machine 成员就表示该属性。
 
 相关常量以“EM”开头：
 
@@ -679,15 +641,13 @@ ELF 文件被设计成可以在多个平台下使用，但并不表示同一个 
 
 - 段表
 
-段表（Section Header Table）描述了各个段的信息，比如每个段的段名、段的长度、在文件
-中的偏移、读写权限及段的其他属性。
+段表（Section Header Table）描述了各个段的信息，比如每个段的段名、段的长度、在文件中的偏移、读写权限及段的其他属性。
 
-编译器、链接器和装载器都是依靠段表来定位和访问各个段的属性的。段表在 ELF 文件头的位
-置由“e_shoff”成员决定。
+编译器、链接器和装载器都是依靠段表来定位和访问各个段的属性的。段表在 ELF 文件头的位置由“e_shoff”成员决定。
 
 查看段表：
 
-```
+```shell
 $ readelf -S SimpleSection.o
 ```
 
@@ -743,19 +703,19 @@ Elf32_Shdr 各个成员的含义：
 
 决定段的属性和类型的是段的类型（sh_type）和段的属性（sh_flag）。
 
-| 常量         | 值 | 含义                                  |
-| SHT_NULL     | 0  | 无效段                                |
+| 常量         | 值 | 含义                                   |
+| SHT_NULL     | 0  | 无效段                                 |
 | SHT_PROGBITS | 1  | 程序段、代码段、数据段都是这种类型     |
 | SHT_SYMTAB   | 2  | 表示该段的内容为符号表                 |
 | SHT_STRTAB   | 3  | 表示该段的内容为字符串表               |
 | SHT_RELA     | 4  | 重定位表，该段包含了重定位信息         |
-| SHT_HASH     | 5  | 符号表的哈希表                        |
-| SHT_DYNAMIC  | 6  | 动态链接信息                          |
-| SHT_NOTE     | 7  | 提示性信息                            |
+| SHT_HASH     | 5  | 符号表的哈希表                         |
+| SHT_DYNAMIC  | 6  | 动态链接信息                           |
+| SHT_NOTE     | 7  | 提示性信息                             |
 | SHT_NOBITS   | 8  | 表示该段在文件中没有内容，比如 .bss 段 |
-| SHT_REL      | 9  | 该段包含了重定位信息                  |
-| SHT_SHLIB    | 10 | 保留                                  |
-| SHT_DNYSYM   | 11 | 动态链接的符号表                      |
+| SHT_REL      | 9  | 该段包含了重定位信息                   |
+| SHT_SHLIB    | 10 | 保留                                   |
+| SHT_DNYSYM   | 11 | 动态链接的符号表                       |
 
 
 
@@ -816,37 +776,32 @@ Elf32_Shdr 各个成员的含义：
 
 ### 3.5 链接的接口——符号
 
-目标文件 B 用到了目标文件 A 中的函数“foo”，那么我们就称目标文件 A 定义（Define）了
-函数“foo”，称目标文件 B 引用（Reference）了目标文件 A 中的函数“foo”。
+目标文件 B 用到了目标文件 A 中的函数“foo”，那么我们就称目标文件 A 定义（Define）了函数“foo”，称目标文件 B 引用（Reference）了目标文件 A 中的函数“foo”。
 
 在链接中，函数和变量统称为符号（Symbol），函数名和变量名就是符号名（Symbol Name）。
 
-每一个目标文件都会有一个相应的符号表（Symbol Table），每一个定义的符号有一个对应的值
-，叫做符号值（Symbol Value），对于函数和变量来说，就是它们的地址。
+每一个目标文件都会有一个相应的符号表（Symbol Table），每一个定义的符号有一个对应的值，叫做符号值（Symbol Value），对于函数和变量来说，就是它们的地址。
 
 符号表中的所有符号分为如下几类：
 
 1. 定义在本目标文件的全局符号，可被其他目标文件引用；
-2. 定义在本目标文件的全局符号，却没有定义在目标文件，一般叫做外部符号（External Symbol），
-也就是符号引用，例如“printf”；
+2. 定义在本目标文件的全局符号，却没有定义在目标文件，一般叫做外部符号（External Symbol），也就是符号引用，例如“printf”；
 3. 段名，这种符号往往由编译器产生，它的值就是该段的起始地址；
-4. 局部符号，这种符号只在编译单元内部可见，对于链接过程没有作用，调试器可以使用这些
-符号来分析程序或崩溃时的核心转储文件；
+4. 局部符号，这种符号只在编译单元内部可见，对于链接过程没有作用，调试器可以使用这些符号来分析程序或崩溃时的核心转储文件；
 5. 行号信息，即目标文件指令与源代码中代码行的对应关系，它也是可选的。
 
 
 
 使用“nm”工具查看符号：
 
-```
+```shell
 $ nm SimpleSection.o
 ```
 
 
 - ELF 符号结构
 
-符号表存在于“.symtab”段中，符号表的结构是一个 Elf32_Sym（32 位 ELF 文件）结构的数组。
-每个 Elf32_Sym 结构对应一个符号，数组的第一个元素为无效的“未定义”符号。
+符号表存在于“.symtab”段中，符号表的结构是一个 Elf32_Sym（32 位 ELF 文件）结构的数组。每个 Elf32_Sym 结构对应一个符号，数组的第一个元素为无效的“未定义”符号。
 
 Elf32_Sym 结构如下：
 
@@ -868,12 +823,12 @@ typedef struct
 
 成员定义如下：
 
-| 成员 | 含义 |
-| ---- | ---- |
-| st_name | 符号名。这个成员包含了该符号名在字符串表中的下标 |
+| 成员     | 含义 |
+| -------- | ---- |
+| st_name  | 符号名。这个成员包含了该符号名在字符串表中的下标 |
 | st_value | 符号相对应的值。这个跟符号有关，可能是一个绝对值，也可能是一个地址等，不同的符号，它所对应的值含义不同 |
-| st_size | 符号大小。对于包含数据的符号，这个值是该数据类型的大小。比如一个 double 类型的符号它占用 8 个字节。如果该值为 0，则表示该符号大小为 0 或未知 |
-| st_info | 符号类型和绑定信息 |
+| st_size  | 符号大小。对于包含数据的符号，这个值是该数据类型的大小。比如一个 double 类型的符号它占用 8 个字节。如果该值为 0，则表示该符号大小为 0 或未知 |
+| st_info  | 符号类型和绑定信息 |
 | st_other | 该成员目前为 0，无用 |
 | st_shndx | 符号所在段 |
 
@@ -885,11 +840,11 @@ typedef struct
 
 符号绑定信息：
 
-| 宏定义名   | 值 | 说明                              |
-| ---------- | -- | -------------------------------- |
+| 宏定义名   | 值 | 说明                               |
+| ---------- | -- | ---------------------------------- |
 | STB_LOCAL  | 0  | 局部符号，对于目标文件的外部不可见 |
-| STB_GLOBAL | 1  | 全局符号，外部可见                |
-| STB_WEAK   | 2  | 弱引用                           |
+| STB_GLOBAL | 1  | 全局符号，外部可见                 |
+| STB_WEAK   | 2  | 弱引用                             |
 
 符号类型：
 
@@ -905,16 +860,15 @@ typedef struct
 
 - 符号所在段（st_shndx）
 
-如果符号定义在本目标文件中，那么这个成员表示符号所在的段在段表中的下标，如果符号不是
-定义在本目标文件中，或者对于有些特殊符号，sh_shndx 的值有些特殊。
+如果符号定义在本目标文件中，那么这个成员表示符号所在的段在段表中的下标，如果符号不是定义在本目标文件中，或者对于有些特殊符号，sh_shndx 的值有些特殊。
 
 符号所在段特殊常量
 
 | 宏定义名   | 值     | 说明 |
 | ---------- | ------ | ---- |
 | SHN_ABS    | 0xfff1 | 表示该符号包含了一个绝对的值。比如文件名的符号类型就是这种 |
-| SHN_COMMON | 0xff2 | 表示该符号是一个“COMMON块”类型的符号，一般来说，未初始化的全局符号定义就是这种类型的，比如 SimpleSection.o 里面的 global_uninit_var |
-| SHN_UNDEF | 0     | 表示该符号未定义，这个符号表示该符号在本目标文件中被引用，但是定义在其他目标文件中 |
+| SHN_COMMON | 0xff2  | 表示该符号是一个“COMMON块”类型的符号，一般来说，未初始化的全局符号定义就是这种类型的，比如 SimpleSection.o 里面的 global_uninit_var |
+| SHN_UNDEF  | 0      | 表示该符号未定义，这个符号表示该符号在本目标文件中被引用，但是定义在其他目标文件中 |
 
 
 
@@ -922,8 +876,7 @@ typedef struct
 
 有如下几种情况：
 
-1. 在目标文件中，如果是符号的定义并且该符号不是“COMMON块”类型的，则表示该符号在段中
-的偏移。 即符号所对应的变量或函数位于 sh_shndx 指定的段，偏移 st_value 的位置。
+1. 在目标文件中，如果是符号的定义并且该符号不是“COMMON块”类型的，则表示该符号在段中的偏移。 即符号所对应的变量或函数位于 sh_shndx 指定的段，偏移 st_value 的位置。
 2. 在目标文件中，如果符号是“COMMON块”类型的，则 st_value 表示该符号的对齐属性。
 3. 在可执行文件中，st_value 表示符号的虚拟地址。这个虚拟地址对于动态链接器十分有用。
 
@@ -931,7 +884,7 @@ typedef struct
 
 使用 readelf 查看符号信息：
 
-```
+```shell
 $ readelf -s SimpleSection.o
 ```
 
@@ -939,8 +892,7 @@ $ readelf -s SimpleSection.o
 
 - 特殊符号
 
-当使用 ld 作为链接器来生成可执行文件时，它会为我们定义很多特殊符号，这些符号并没有在
-你的程序中定义，但是你可以直接声明并引用它们。
+当使用 ld 作为链接器来生成可执行文件时，它会为我们定义很多特殊符号，这些符号并没有在你的程序中定义，但是你可以直接声明并引用它们。
 
 例如：
 
@@ -963,12 +915,11 @@ $ readelf -s SimpleSection.o
 
 使用 c++filt 工具解析被修饰后的符号名：
 
-```
+```shell
 $ c++filt _ZN1N1C4funcEi
 ```
 
-由于不同的编译器采用不同的名字修饰方法，必然会导致由不同的编译器编译产生的目标文件无
-法相互链接，这是导致不同编译器之间不能互操作的主要原因之一。
+由于不同的编译器采用不同的名字修饰方法，必然会导致由不同的编译器编译产生的目标文件无法相互链接，这是导致不同编译器之间不能互操作的主要原因之一。
 
 
 
@@ -1000,11 +951,56 @@ void *memset (void *, int, size_t);
 
 可以通过 GCC 的“__attribute__((weak))”来定义任何一个强符号为弱符号。
 
+链接器按照如下规则处理与选择被多次定义的全局符号：
+
+1. 不允许强符号被多次定义（即不同的目标文件中不能有同名的强符号）；如果定义了多个强符号，则链接器报符号重复定义错误；
+2. 如果一个符号在某个目标文件中是强符号，在其他文件中都是弱符号，那么选择强符号；
+3. 如果一个符号所在的所有目标文件中都是弱符号，那么选择其中占用空间最大的一个。（尽量不要使用多个不同类型的弱符号，否则很容易导致很难发现的程序错误）。
+
+- 弱引用与强引用
+
+目前对外部目标文件中的符号引用在目标文件被最终链接成可执行文件时，它们必须要被正确决议，如果没有找到该符号的定义，链接器就会报符号未定义错误，这种被称为强引用（Strong Reference）
+
+如果该符号有定义，则链接器将该符号的引用决议；如果该符号未被定义，则链接器对于该引用不报错，会给与其一个默认值 0，或一个特殊的值，以便于程序代码能够识别。
+
+弱符号和弱引用对于库来说十分有用，比如库中定义的弱符号可以被用户定义的强符号所覆盖，从而使得程序可以使用自定义版本的库函数；或者程序可以对某些扩展功能模块的引用定义为弱引用，当我们将扩展模块与程序链接在一起时，功能模块就可以正常使用；去掉了某些功能模块，那么程序也可以正常链接，只是缺少了相应的功能，这使得程序的功能更加容易裁剪和组合。
 
 
 
+### 4.6 调试信息
+
+使用 GCC 编译时加 -g 参数，编译器将会在目标文件中加入调试信息。
+
+ELF 文件采用一个叫 DWARF（Debug With Arborary Record Format）的标准的调试信息格式。
+
+ELF 文件中的调试信息往往很大，使用 strip 命令来去除 ELF 文件中的调试信息。
+
+```shell
+$ strip foo
+```
 
 
 
+## 第 4 章 静态链接
+
+链接两个文件。
+
+```sh
+$ gcc -c a.c b.c
+```
+
+### 4.1 空间与地址分配
+
+- 按序叠加
+
+- 相似段合并
+
+- 两步链接（Two-pass Linking）
+
+1. 空间与地址分配
+2. 符号解析与重定位
 
 
+```shell
+$ld a.o b.o -e main -o ab
+```
