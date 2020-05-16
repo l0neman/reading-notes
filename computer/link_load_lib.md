@@ -1004,3 +1004,44 @@ $ gcc -c a.c b.c
 ```shell
 $ld a.o b.o -e main -o ab
 ```
+
+VMA（Virtual Memory Address）虚拟地址
+
+- 符号地址的确定
+
+
+
+### 4.2 符号解析与重定位
+
+- 重定位
+
+- 重定位表（Relocation Table）
+
+可被叫做重定位段，例代码段“.text”中如果有要被重定位的地方，那么会有一个相对应的“.rel.text”段保存了代码段的重定位表。
+
+查看重定位表：
+
+```shell
+$ objdump -r a.o
+```
+
+重定位入口（Relocation Entry）
+
+重定位表结构
+
+```c
+// /usr/include/elf.h
+
+/* Relocation table entry without addend (in section of type SHT_REL).  */
+
+typedef struct
+{
+  Elf32_Addr    r_offset;               /* Address */
+  Elf32_Word    r_info;                 /* Relocation type and symbol index */
+} Elf32_Rel;
+```
+
+| 成员     | 含义                                                         |
+| -------- | ------------------------------------------------------------ |
+| r_offset | 重定位入口的偏移。对于可重定位文件来说，这个值是该可重定位入口所要修正的位置的第一个字节相对于段起始的偏移；对于可执行文件或共享对象文件来说，这个值是该重定位入口所要修正的位置的第一个字节的虚拟地址。 |
+| r_info   | 重定位入口的类型和符号。这个成员的低 8 位表示重定位入口的类型，高 24 位表示重定位入口的符号在符号表中下标。<br />因为各个处理器的指令格式不一样，所以重定位所修正的地址格式也不一样，每种处理器都有自己一套重定位入口的类型，对于可执行文件和共享对象文件来说，它们的重定位入口是动态链接类型的。 |
