@@ -1272,7 +1272,156 @@ BFD 库（Binary File Descriptor library），目的是通过一种统一的接�
 
 ## 第 5 章 Windows PE/COFF
 
+### 5.1 Windows 的二进制文件格式 PE/COFF
+
+在 32 位的 Windows 平台下，微软引入了一种叫 PE（Protable Executable）的可执行文件格式。
+
+PE 文件格式和 ELF 同根同源，都是由 COFF（Common Object File Format）格式发展而来的。
 
 
 
+### 5.2 PE 的前身——COFF
+
+使用 Visual C++ 编译器 cl（cl 是 Compiler 的缩写）：
+
+```cmd
+cl /c /Za SimpleSection.c
+```
+
+编译后得到一个 SimpleSection.obj 文件。
+
+使用 dimpbin 查看 obj 文件结构：
+
+```cmd
+dumpbin /ALL SimpleSection.obj > SimpleSection.txt
+```
+
+查看基本信息：
+
+```cmd
+dumpbin SimpleSection.obj /SUMMARY
+```
+
+
+
+- COFF 文件结构
+
+COFF 文件头包括两部分，映像头（Image Header）包含文件总体结构和属性；段表（Section Table）包含段属性和属性的映像头。
+
+映像（Image）：因为 PE 文件在装载的时候被直接映射到进程的虚拟空间执行，它是进程的虚拟空间的映像。所以 PE 可执行文件很多时候被叫做映像文件（Image File）。
+
+
+
+- 5.3 链接指示信息
+
+- 5.4 调试信息
+
+- 5.5 大家都有符号表
+
+
+
+### 5.6 Windows 下的 ELF——PE
+
+PE 文件是基于 COFF 的扩展，它比 COFF 文件多了几个结构，有两个主要变化：
+
+1. 文件最开始的部分不是 COFF 文件头，而是 DOS MZ 可执行文件格式的文件头和桩代码（DOS MZ File Header and Stub）；
+2. 原来的 COFF 文件头中的“IMAGE_FILE_HEADER”部分扩展成了 PE 文件文件头结构“IMAGE_NT_HEADERS”，此结构包括了原来的“Image Header”及新增的 PE 扩展头部结构（PE Optional Header）。
+
+
+
+# 第 3 部分 装载与动态链接
+
+## 第 6 章 可执行文件的装载与进程
+
+### 6.1 进程虚拟地址空间
+
+程序（或者狭义上讲可执行文件）是一个静态概念，它就是一些预先编译好的指令和数据集合的一个文件；进程则是一个动态的概念，它是程序运行时的一个过程，很多时候把动态库叫做运行时（Runtime）也有一定的含义。
+
+每个程序被运行起来以后，它将拥有自己独立的虚拟地址空间（Virtual Address Space）。
+
+PAE（Physical Address Extension）
+
+AWE（Address Windowing Extensions）
+
+XMS（eXtended Memory Specification）
+
+
+
+### 6.2 装载的方式
+
+覆盖装入（Overlay）和页映射（Paging）是两种很典型的动态装入方法，它们都利用了程序的局部性原理。动态装入的思想是程序是程序用到哪个模块，就将哪个模块装入内存，如果不用就暂时不装入，放在磁盘中。
+
+- 覆盖装入
+
+覆盖管理器（Overlay Manager）
+
+程序员需要手工将模块按照它们之间的调用依赖关系组织成书状结构。
+
+- 页映射
+
+
+
+### 6.3 从操作系统角度看可执行文件的装载
+
+- 进程的建立
+
+1. 创建一个独立的虚拟地址空间；
+2. 读取可执行文件头，并且建立虚拟空间与可执行文件的映射关系；
+3. 将 CPU 的指令寄存器设置成可执行文件的入口地址，启动运行。
+
+虚拟内存区域（VMA，Virtual Memory Area）
+
+
+
+- 页错误
+
+页错误（Page Fault）
+
+
+
+### 进程虚存空间分布
+
+段的权限:
+
+1. 以代码段为代表的权限为可读可执行的段；
+2. 以数据段和 BSS 段为代表的权限为可读可写的段；
+3. 以只读数据段为代表的权限为制度的段。
+
+一个简单的方案是：对于相同权限的段，把它们合并到一起当作一个段进行映射。
+
+ELF 中的视图（View），从“Section”的角度来看 ELF 文件就是链接视图（Linking View），从“Segment”的角度来看就是执行视图（Execution View）。
+
+ELF 可执行文件中有一个专门的数据结构叫做程序头表（Program Header Table），用来保存“Segment”的信息。有为 ELF 目标文件不需要被装载，所以它没有程序头表，而 ELF 的可执行文件和共享库文件都有。
+
+```c
+// /usr/include/elf.h
+
+* Program segment header.  */
+
+typedef struct
+{
+  Elf32_Word    p_type;                 /* Segment type */
+  Elf32_Off     p_offset;               /* Segment file offset */
+  Elf32_Addr    p_vaddr;                /* Segment virtual address */
+  Elf32_Addr    p_paddr;                /* Segment physical address */
+  Elf32_Word    p_filesz;               /* Segment size in file */
+  Elf32_Word    p_memsz;                /* Segment size in memory */
+  Elf32_Word    p_flags;                /* Segment flags */
+  Elf32_Word    p_align;                /* Segment alignment */
+} Elf32_Phdr;
+
+```
+
+成员说明如下：
+
+| 成员     | 含义 |
+| -------- | ---- |
+| p_type   |      |
+| p_offset |      |
+| p_vaddr  |      |
+| p_paddr  |      |
+| p_filesz |      |
+| p_memse  |      |
+| p_flags  |      |
+| p_align  |      |
 
