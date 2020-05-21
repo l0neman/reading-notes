@@ -1414,14 +1414,43 @@ typedef struct
 
 成员说明如下：
 
-| 成员     | 含义 |
-| -------- | ---- |
-| p_type   |      |
-| p_offset |      |
-| p_vaddr  |      |
-| p_paddr  |      |
-| p_filesz |      |
-| p_memse  |      |
-| p_flags  |      |
-| p_align  |      |
+| 成员     | 含义                                                         |
+| -------- | ------------------------------------------------------------ |
+| p_type   | “Segment”类型，“LOAD”类型的常量为 1                          |
+| p_offset | “Segment”在文件中的偏移                                      |
+| p_vaddr  | “Segment”的第一个字节在虚拟地址空间的起始位置，整个程序表头中，所有“LOAD”类型的元素按照 p_vaddr 从小大到大排列 |
+| p_paddr  | “Segment”的物理装载地址，即 LMA（Load Memory Address），一般情况下 p_paddr 和 p_vaddr 是相同的 |
+| p_filesz | “Segment”在 ELF 文件中所占空间的长度，它的值可能是 0，因为可能这个“Segment”在 ELF 文件中不存在内容 |
+| p_memse  | “Segment”在进程虚拟地址空间中所占的长度，它的值也可能是 0    |
+| p_flags  | “Segment”的权限属性，比如可读“R”，可写“W”和可执行“X”         |
+| p_align  | “Segment”的对齐属性，实际对齐字节等于 2 的 p_align 次方      |
+
+
+
+- 堆和栈
+
+在操作系统里面，VMA除了被用来映射可执行文件中的各个“Segment”以外，还包括栈（Stack）和堆（Heap）。
+
+查看 /proc 来看进程的虚拟空间分布：
+
+```
+$ ./SectionMapping.elf &
+[1] 12345
+$ cat /proc/12345/maps
+```
+
+匿名虚拟内存区域（Anonymous Virtual Memory Area）
+
+VMA 类型：
+
+1. 代码 VMA，权限只读、可执行；有影象文件；
+2. 数据 VMA，权限可读写，可执行；有映像文件；
+3. 堆 VMA，权限可读写、可执行；无映像文件，匿名，可向上扩展；
+4. 栈 VMA，权限可读写、不可执行；无映像文件，匿名，可向下扩展。
+
+
+
+- 堆的最大申请数量
+
+
 
