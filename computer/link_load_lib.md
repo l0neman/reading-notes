@@ -899,7 +899,7 @@ $ readelf -s SimpleSection.o
 1. __executable_start，该符号为程序起始地址，注意，不是入口地址；
 2. __etext 或 _etext 或 etext，该符号为代码段结束地址，即最末尾的地址；
 3. _edata 或 edata，该符号为数据段结束地址，即最末尾的地址；
-4. _end 或 end，该符号为程序结束地址。
+4. \_end 或 end，该符号为程序结束地址。
 
 以上地址都是程序被装载时的虚拟地址。
 
@@ -1218,11 +1218,11 @@ SECTIONS
 
 1. 语句之间使用分号“;”作为分割符，对于命令语句来说也可使用换行符来结束语句；
 2. 表达式与运算符，比如+、-、*、/、+=、-=、*=，甚至包括&、|、>>、<< 这些位运算符；
-3. 注释和字符引用，使用 /**/ 作为注释。脚本文件中使用到的文件名、格式名或段名等凡包括“;”或其他的分隔符的，都要使用双引号将该名字全称引用起来，如果文件名包含引号，将无法处理。
+3. 注释和字符引用，使用 /\*\*/ 作为注释。脚本文件中使用到的文件名、格式名或段名等凡包括“;”或其他的分隔符的，都要使用双引号将该名字全称引用起来，如果文件名包含引号，将无法处理。
 
 | 命令语句                                         | 说明                                                         |
 | ------------------------------------------------ | ------------------------------------------------------------ |
-| ENTRY(symbol)                                    | 指定符号 symbol 的值为入口地址（Entry Point）。入口地址即进程执行的第一条用户空间的指令在进程地址空间的地址，它被指定在 ELF 文件头 Elf32_Ehdr 的 e_entry 成员中。ld 有多种方法可以设置进程入口地址，它们之间的优先级按以下顺序排列（优先级由上至下）：<br />1. ld 命令行的 -e 选项<br />2. 链接脚本的 ENTRY（symbol）命令<br />3. 如果定义了 _start 符号，使用 _start 符号值<br />4. 如果存在 .text 段，使用 .text 段的第一字节的地址<br />5. 使用值 0 |
+| ENTRY(symbol)                                    | 指定符号 symbol 的值为入口地址（Entry Point）。入口地址即进程执行的第一条用户空间的指令在进程地址空间的地址，它被指定在 ELF 文件头 Elf32_Ehdr 的 e_entry 成员中。ld 有多种方法可以设置进程入口地址，它们之间的优先级按以下顺序排列（优先级由上至下）：<br />1. ld 命令行的 -e 选项<br />2. 链接脚本的 ENTRY（symbol）命令<br />3. 如果定义了 \_start 符号，使用 _start 符号值<br />4. 如果存在 .text 段，使用 .text 段的第一字节的地址<br />5. 使用值 0 |
 | STARTUP(filename)                                | 将文件 filename 作为链接过程中的第一个输入文件               |
 | SEARCH_DIR(path)                                 | 将路径 path 加入到 ld 链接器的库查找目录。ld 会根据指定的目录去查找相应的库，跟“-Lpath”命令有着相同的作用 |
 | INPUT(file, file, ...)<br />INPUT(file file ...) | 将指定文件作为链接过程中的输入文件                           |
@@ -1396,7 +1396,7 @@ ELF 可执行文件中有一个专门的数据结构叫做程序头表（Program
 ```c
 // /usr/include/elf.h
 
-* Program segment header.  */
+/* Program segment header.  */
 
 typedef struct
 {
@@ -1511,13 +1511,97 @@ PE 文件中，与装载相关的主要信息都包含在 PE 扩展头（PE Opti
 
 ## 第 7 章 动态链接
 
+- 程序的可扩展性和兼容性
+
+插件（Plug-in）
+
 动态链接（Dynamic Linking）
 
 在 Linux 系统中，ELF 动态链接文件被称为动态共享对象（DSO Dynamic Shared Objects），简称共享对象，它们一般都是以“.so”为扩展名的一些文件；而在 Windows 系统中，动态链接文件被称为动态链接库（Dynamical Linking Library），它们通常就是我们平时很常见的以“.dll”为扩展名的文件。
 
 
 
+- 简单的动态链接例子
+
+```c
+/* Program1.c */
+#include "Lib.h"
+
+int main()
+{
+  foobar(1);
+  return 0;
+}
+
+/* Program2.c */
+#include "Lib.h"
+
+int main()
+{
+  foobar(2);
+  return 0;
+}
+
+/* Lib.c */
+#include <stdio.h>
+
+void foobar(int i)
+{
+  printf("Printing from Lib.so %d\n", i);
+}
+
+/* Lib.h */
+#ifndef LIB_H
+#define LIB_H
+
+void foobar(int i);
+
+#endif LIB_H
+```
+
+```shell
+gcc -fPIC -shared -o Lib.so Lib.c
+
+gcc -o Program1 Program1.c ./Lib.so
+gcc -o Program2 Program2.c ./Lib.so
+```
+
+编译和链接过程：
+
+```
+                [ Lib.c ] -> [ Compiler ] -> [ Lib.o ]
+                                                 |
+                                                 v
+                    [ C Runtime Library ] -> [ Linker ]
+                                                 |
+                                                 v
+                                           [ Lib.so (Stub) ]
+                                                       \
+                                                        v
+[ Program1.c ] -> [ Compiler ] -> [ Program1.o ] -> [ Lineker ] -> [ Program1 ]                     
+```
+
+- 关于模块（Module）
+
+在静态链接时，整个程序最终只有一个可执行文件，它是一个不可以分割的整体；但是在动态链接下，一个程序被分成了若干的文件，有程序的主要部分，即可执行文件（Program1）和程序所依赖的共享对象（Lib.so），很多时候我们也把这些部分称为模块，即动态链接下的可执行文件和共享对象都可以看作是程序的一个模块。
+
+共享对象的最终装载地址在编译时是不确定的。
+
+### 7.3 地址无关代码
+
+静态共享库（Static Shared Library）
+
+共享对象在编译时不能假设自己在进程虚拟地址空间中的位置。
 
 
 
+- 装载时重定位
+
+静态链接时的重定位叫做链接时重定位（Link Time Relocation），动态链接时被称作装载时重定位（Load Time Relocation），在 Windows 中，这种装载时重定位又被叫做基址重置（Rebasing）。
+
+
+
+- 地址无关代码
+
+地址无关代码（PIC，Position-independent Code）技术
 
