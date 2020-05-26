@@ -1691,11 +1691,122 @@ $ gcc -shared pic.c -o pic.so
 
 ELF 使用 PLT（Procedure Linkage Table）的方法来实现。
 
+.got.plt 前三项：
+
+1. 保存的是“.dynamic”段的地址，这个段描述了本模块动态链接相关的信息；
+2. 保存的是本模块的 ID；
+3. 保存的是 _dl_runtime_resolve() 的地址。
+
+第 2 项和第 3 项由动态连接器在装载共享模块时将他们初始化，.got.plt 的其它项分别对应每个外部防函数的引用。
 
 
 
+### 7.5 动态链接相关结构
+
+动态连接器（Dynamic Linker）
+
+- “.interp”段
+
+动态链接器由 ELF 可执行文件决定，在 ELF 文件中，“.interp”段用来存放所需的动态链接器的路径
+
+- “.dynamic”段
+
+```c
+// /usr/include/elf.h
+
+* Dynamic section entry.  */
+
+typedef struct
+{
+  Elf32_Sword   d_tag;                  /* Dynamic entry type */
+  union
+    {
+      Elf32_Word d_val;                 /* Integer value */
+      Elf32_Addr d_ptr;                 /* Address value */
+    } d_un;
+} Elf32_Dyn;
+```
+
+由一个类型值加上一个附加的数值或者指针。
+
+| d_tag 类型                | d_un 的含义                                         |
+| ------------------------- | --------------------------------------------------- |
+| DT_SYMTAB                 | 动态链接符号表的地址，d_ptr 表示“.dynsym”的地址     |
+| DT_STRTAB                 | 动态链接字符串表地址，d_ptr 表示“.dynstr”的地址     |
+| DT_STRSZ                  | 动态链接字符串表大小，d_val 表示大小                |
+| DT_HASH                   | 动态链接哈希表地址，d_ptr 表示“.hash”的地址         |
+| DT_SONAME                 | 本共享对象的“SO-NAME”                               |
+| DT_RPATH                  | 动态链接共享对象搜索路径                            |
+| DT_INIT                   | 初始化代码地址                                      |
+| DT_FINIT                  | 结束代码地址                                        |
+| DT_NEED                   | 依赖的共享对象文件，d_ptr表示所以来的共享对象文件名 |
+| DT_REL<br />DT_RELA       | 动态链接重定位表地址                                |
+| DT_RELENT<br />DT_RELAENT | 动态重读位表入口地址                                |
 
 
+
+- 动态符号表
+
+动态符号表（Dynamic Symbol Table），它的段名通常叫做“.dynsym”，它只保存了与动态链接相关的符号，而“.symtab”中保存了所有的符号。
+
+动态符号表也需要一些辅助表，例如动态符号字符串表“.dynstr”（Dynamic String Table），符号哈希表（“.hash”）。
+
+查看 ELF 文件的动态符号表以及它的哈希表：
+
+```shell
+$ readelf -sD Lib.so
+```
+
+
+
+- 动态链接重定位表
+
+查看动态链接的文件的重定位表：
+
+```shell
+$ readelf -r Lib.so
+```
+
+
+
+- 动态链接时进程堆栈初始化信息
+
+进程初始化的时候，堆栈里面保存了关于进程执行环境和命令行参数等信息，还保存了动态连接器所需要的一些辅助信息数组（Auxiliary Vector）。
+
+```c
+// usr/include/elf.h
+
+/* Auxiliary vector.  */
+
+/* This vector is normally only used by the program interpreter.  The
+   usual definition in an ABI supplement uses the name auxv_t.  The
+   vector is not usually defined in a standard <elf.h> file, but it
+   can't hurt.  We rename it to avoid conflicts.  The sizes of these
+   types are an arrangement between the exec server and the program
+   interpreter, so we don't fully specify them here.  */
+
+typedef struct
+{
+  uint32_t a_type;              /* Entry type */
+  union
+    {
+      uint32_t a_val;           /* Integer value */
+      /* We use to have pointer elements added here.  We cannot do that,
+         though, since it does not work when using 32-bit definitions
+         on 64-bit platforms and vice versa.  */
+    } a_un;
+} Elf32_auxv_t;
+```
+
+| a_type 定义 | a_type 值 | a_val 的含义         |
+| ----------- | --------- | -------------------- |
+| AT_NULL     | 0         | 表示辅助信息数组结束 |
+| AT_EXEFD    | 2         |                      |
+| AT_PHDR     | 3         |                      |
+| AT_PHENT    | 4         |                      |
+| AT_PHNUM    | 5         |                      |
+| AT_BASE     | 7         |                      |
+| AT_ENTRY    | 9         |                      |
 
 
 
