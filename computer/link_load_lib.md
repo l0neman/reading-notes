@@ -2037,3 +2037,89 @@ gcc -shared -fPIC lib.c -Xlinker --version-script lib.ver -o lib.o
 
 ### 8.3 共享库系统路径
 
+大多数包括 Linux 在内的开元操作系统都遵守一个叫做 FHS（File Hierarchy Standard）的标准。
+
+FHS 规定了一个系统中的文件该如何存放，包括各个目录的结构、组织和作用，有利用促进各个开源操作系统之间的兼容性，共享库作为系统中重要的文件，它们的存放方式也被 FHS 列入范围。
+
+FHS 规定，一个系统主要有两个存放共享库的位置：
+
+1. /lib，这个位置主要存放系统最关键和基础的共享库，比如动态链接器、C 语言运行库、数学库等，这些库主要是那些 /bin 和 /sbin 下的程序所需要用到的库，还有系统启动时需要的库；
+2. /usr/lib，这个目录下主要保存的是一些非系统运行时所需要的关键性的共享库，主要是一些开发时用到的共享库，这些共享库以一般不会被用户的程序或 shell 脚本字节用到。这个目录下面还包含了开发时可能会用到的静态库、目标文件等；
+3. /usr/local/lib，这个目录用来放置一些跟操作系统本身并不十分相关的库，主要是一些第三方应用程序的库。比如安装了 python 语言的解释器，那么与它相关的共享库可能会被放到 /usr/local/lib/python，而它的可执行文件可能被放到 /usr/local/bin 下。GNU 的标准推荐第三方的程序应该默认将库安装到 /usr/local/lib 下。
+
+
+
+### 8.4 共享库查找过程
+
+### 8.5 环境变量
+
+LD\_LIBRARY\_PATH
+
+LD\_PRELOAD
+
+LD\_DEBUG
+
+
+
+### 共享库的创建和安装
+
+- 共享库的创建
+
+```shell
+$ gcc -shared -W1,-soname,my_soname -o library_name source_files library_files
+```
+
+如果不使用 -soname 来指定共享库的 SO-NAME，那么它默认就没有 SO-NAME，即使用 ldconfig 更新 SO-NAME 的软链接时，对该共享库也没有效果。
+
+将 libfoo1.c 和 libfoo2.c 两个源代码文件,产生一个 libfoo.so.1.0.0 的共享库，它们依赖于 libbar1.so 和 libbar2.so 这两个共享库：
+
+```shell
+$ gcc shared -fPIC -w1,-soname,libfoo.so.1 -o libfoo.so.1.0.0 libfool1.c libfoo2.c -lbar1 -lbar2
+```
+
+
+
+- 清除符号信息
+
+```shell
+$strip libfoo.so
+```
+
+
+
+-共享库的安装
+
+```shell
+$ ldconfig -n share_library_directory
+```
+
+
+
+- 共享库构造和析构函数
+
+gcc 提供了一种共享库的构造函数，只要在函数声明附加上“__attribute__((constructor))”的属性，即指定该函数为共享库构造函数，它会在共享库被加载时执行，即在 main 函数之前执行。
+
+对应的析构函数是“__attribute__((destructor))”
+
+- 共享库脚本
+
+
+
+## 第 9 章 Windows 下的动态链接
+
+todo
+
+# 第 4 部分 库与运行库
+
+
+
+
+
+
+
+
+
+
+
+
+
