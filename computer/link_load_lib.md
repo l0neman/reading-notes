@@ -1695,7 +1695,7 @@ ELF 使用 PLT（Procedure Linkage Table）的方法来实现。
 
 1. 保存的是“.dynamic”段的地址，这个段描述了本模块动态链接相关的信息；
 2. 保存的是本模块的 ID；
-3. 保存的是 _dl_runtime_resolve() 的地址。
+3. 保存的是 \_dl\_runtime_resolve() 的地址。
 
 第 2 项和第 3 项由动态连接器在装载共享模块时将他们初始化，.got.plt 的其它项分别对应每个外部防函数的引用。
 
@@ -1714,7 +1714,7 @@ ELF 使用 PLT（Procedure Linkage Table）的方法来实现。
 ```c
 // /usr/include/elf.h
 
-* Dynamic section entry.  */
+/* Dynamic section entry.  */
 
 typedef struct
 {
@@ -1942,4 +1942,98 @@ ABI（Application Binary Interface）
 
 
 - 共享库版本命名
+
+Linux 规定共享库的文件名规则必须如下：
+
+```
+libname.so.x.y.z
+```
+
+最前面使用前缀“.lib、中间是库的名字和后缀“.so”，最后面跟的是三个数字组成的版本号。“x”表示主版本号（Major Version Number），“y”表示次版本号“Minor Version Number”、“z”表示发布版本号（Release Version Number）。
+
+主版本号表示库的重大升级，不同主版本号之间的库是不兼容的，依赖于旧的主版本号的程序需要改动相应的部分，并且重新编译，才可以在新版的共享库中运行；或者，系统必须保留旧版的共享库，使得那些依赖于旧版共享库的程序能够正常运行。
+
+次版本号表示库的增量升级，即增加一些新的接口符号，且保持原来的符号不变。在主版本号相同的情况下，高的次版本号的库向后兼容低的次版本号的库。一个依赖于旧的的次版本号共享库的程序，可以在新的次版本号共享库中运行，因为新版中保留了原来所有的接口，并且不改变它们的定义和含义。
+
+发布版本号表示库的一些错误修正、性能的改进等，并不添加任何新的接口，也不对接口进行更改。相同主版本号、次版本号的共享库，不同的发布版本号之间完兼容，依赖于某个发布版本号的程序可以在任何一个其他发布版本号正常运行，而无需做任何修改。
+
+Glibc 库没有使用这种规则，它的基本 C 语言库使用了 libc-x.y.z.so 这种命名方式。
+
+
+
+- SO-NAME
+
+SO-NAME 即共享库的文件名去掉次版本和发布版本号，保留主版本号。
+
+例如 libfoo.so.2.6.1，它的 SO_NAME 即 libfoo.so.2，SO-NAME 是为了记录共享库的依赖关系。
+
+Linux 系统中，系统会为每个共享库在它所在的目录创建一个跟“SO-NAME”相同的并且指向它的软链接（Symbol Link）。这个软链接会指向目录中主版本号相同、次版本号和发布版本号最新的共享库。
+
+链接名（Link Name）
+
+次版本号交会问题（Minor-revision Rendezvous Problem），系统中只有低次版本号的库，可能运行失败。
+
+
+
+- 基于符号的版本机制
+
+基于符号的版本机制（Symol Versioning），每次升级，每个符号都添加一个独立的版本标记。
+
+- Solaris 中的符号版本机制
+
+符号版本脚本
+
+范围机制（Scoping）
+
+
+
+- Linux 中的符号版本
+
+GCC 对 Solaris 符号版本机制的扩展
+
+GG 允许使用一个叫做“.symver”的汇编宏指令来指定符号的版本。
+
+```c
+asm(".symver add, add@VERS_1.1");
+
+int add(int a, int b)
+{
+  return a + b;
+}
+```
+
+还允许多个版本的同一个符号存在于一个共享库中：
+
+```c
+asm(".symver old_printf, printf@VERS_1.1");
+ams(".sym");
+
+int old_printf() { ... }
+int new_printf() { ... }
+```
+
+
+
+- Linux 系统中符号版本机制实践
+
+符号版本脚本：
+
+```ver
+VERS_1.2 {
+  global:
+    foo;
+  local:
+      *;
+}
+```
+
+指定符号脚本编译：
+
+```shell
+gcc -shared -fPIC lib.c -Xlinker --version-script lib.ver -o lib.o
+```
+
+
+
+### 8.3 共享库系统路径
 
