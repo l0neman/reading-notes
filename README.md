@@ -11,12 +11,16 @@
 - [设计模式：可复用面向对象软件的基础](./design/design_patterns.md)
 
 ## assembly
- 
+
 - [汇编语言 - 王爽](./assembly/assembly_ws.md)
 
 - 附件
 
 [8086 贪吃蛇](./assembly/8086snack.md)
+
+## computer
+
+- [程序员的自我修养 - 链接、装载与库](./computer/link_load_lib.md)
 
 ## other
 

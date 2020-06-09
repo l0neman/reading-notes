@@ -1,4 +1,4 @@
-# 程序员的自修养——链接、装载与库
+# 程序员的自我修养 - 链接、装载与库
 
 # 第 1 部分简介
 
@@ -2278,3 +2278,34 @@ C 语言库的覆盖范围：
 
 - glibc 与 MSVC CRT
 
+glibc（GNU C Library）和 MSVS CRT（MicrosoftVisual C Run-time）
+
+glibc 是 GNU 旗下的 C 标准库，由自由软件基金会 FSF（Free Software Foundation）发起开发。
+
+
+
+### 11.3 运行库与多线程
+
+### 11.4 全局构造与析构
+
+### 11.5 fread 实现
+
+
+
+## 第 12 章 系统调用与 API
+
+系统调用（System Call）
+
+### 12.2 系统调用原理
+
+用户模式（User Mode）和内核模式（Kernel Mode）
+
+中断（Interrupt）
+
+中断处理程序（Interrupt Service Routine，ISR）
+
+中断向量表（Interrupt Vector Table）
+
+
+
+## 第 13 章 运行库实现
