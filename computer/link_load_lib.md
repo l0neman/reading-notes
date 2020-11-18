@@ -752,7 +752,7 @@ Elf32_Shdr 各个成员的含义：
 | sh_name            | Section name 段名<br />段名是个字符串，它位于一个叫做“.shstrtab”的字符串表。sh_name 是段名在“.shstrtab”中的偏移 |
 | sh_tpe             | Section type 段的类型                                        |
 | sh_flags           | Section flag 段的标志                                        |
-| sh_addr            | Section Address 段虚拟地址<br />如果该段可以被加载，这 sh_addr 为该段被加载后在进程地址空间中的地址；否未 sh_addr 为 0 |
+| sh_addr            | Section Address 段虚拟地址<br />如果该段可以被加载，则 sh_addr 为该段被加载后在进程地址空间中的地址；否未 sh_addr 为 0 |
 | sh_offset          | Section Offset 段偏移<br />如果该段存在于文件中，则表示该段在文件中的偏移；否则无意义。比如对 BSS 段来说 |
 | sh_size            | Section Size 段的长度                                        |
 | sh_link 和 sh_info | Section Link and Section Information 段链接信息              |
