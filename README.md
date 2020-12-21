@@ -22,6 +22,10 @@
 
 - [程序员的自我修养 - 链接、装载与库](./computer/link_load_lib.md)
 
+## 程序员
+
+- [程序员修炼之道 - 从小工到专家](./programmer/the_pragmatic_programmer.md)
+
 ## other
 
 - [结构思考力](./other/结构思考力.md)
